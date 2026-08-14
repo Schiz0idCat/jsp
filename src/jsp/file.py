@@ -19,7 +19,7 @@ class Instance:
 
         return cls(components, operations, matrix)
 
-    def print_matrix(self) -> None:
+    def display(self) -> None:
             print(f"Components: {self.components} | Operations: {self.operations}")
             print("-" * 40)
             for row in self.matrix:

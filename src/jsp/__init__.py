@@ -21,7 +21,7 @@ def main() -> None:
     try:
         matrix = Instance.from_file(args.filepath)
         print(f"Successfully loaded instance from: {args.filepath}\n")
-        matrix.print_matrix()
+        matrix.display()
 
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
