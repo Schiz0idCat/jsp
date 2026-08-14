@@ -1,11 +1,11 @@
-class Instance:
+class Jsp:
     def __init__(self, components: int, operations: int, matrix: list[list[int]]):
         self.components = components
         self.operations = operations
         self.matrix = matrix
 
     @classmethod
-    def from_file(cls, filepath: str) -> "Instance":
+    def from_file(cls, filepath: str) -> "Jsp":
         with open(filepath, 'r') as f:
             first_line = f.readline().strip()
             components, operations = map(int, first_line.split())
