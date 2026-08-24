@@ -23,7 +23,7 @@ class JspParser(Parser[Jsp]):
             iterator = iter(values)
             operations = [
                 Operation(duration=duration, machine=machine)
-                for duration, machine in zip(iterator, iterator)
+                for machine, duration in zip(iterator, iterator)
             ]
 
             jobs.append(Job(id=job_id, operations=operations))
