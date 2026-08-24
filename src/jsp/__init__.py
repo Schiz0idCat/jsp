@@ -2,8 +2,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from jsp.bruteforce import bruteforce
-from jsp.file import Jsp
+# from jsp.bruteforce import bruteforce
+from jsp.parser.jsp_parser import JspParser
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -20,14 +20,14 @@ def main() -> None:
     args = parse_args()
 
     try:
-        matrix = Jsp.from_file(args.filepath)
-        print(f"Successfully loaded instance from: {args.filepath}\n")
+        parser = JspParser()
+        instance = parser.parse_file(args.filepath)
 
-        matrix.display()
+        print(instance)
 
         print()
 
-        bruteforce(matrix)
+        # bruteforce(matrix)
 
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
