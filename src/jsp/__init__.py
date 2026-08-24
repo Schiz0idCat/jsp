@@ -2,7 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 
-# from jsp.bruteforce import bruteforce
+from jsp.bruteforce import bruteforce
 from jsp.parser.jsp_parser import JspParser
 
 def parse_args() -> argparse.Namespace:
@@ -27,7 +27,7 @@ def main() -> None:
 
         print()
 
-        # bruteforce(matrix)
+        bruteforce(instance)
 
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
