@@ -2,7 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from jsp.bruteforce import bruteforce
+from jsp.solver import BruteForceSolver
 from jsp.parser.jsp_parser import JspParser
 
 def parse_args() -> argparse.Namespace:
@@ -27,7 +27,14 @@ def main() -> None:
 
         print()
 
-        solution = bruteforce(instance)
+        solver = BruteForceSolver()
+        solution = solver.solve(instance)
+
+        if solution is None:
+            print("No solution")
+            return
+
+        print(solution)
 
         if solution is None:
             print("No solution")
