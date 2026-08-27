@@ -27,7 +27,13 @@ def main() -> None:
 
         print()
 
-        bruteforce(instance)
+        solution = bruteforce(instance)
+
+        if solution is None:
+            print("No solution")
+            return
+
+        print(solution)
 
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
