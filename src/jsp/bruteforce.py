@@ -1,39 +1,7 @@
-from dataclasses import dataclass
 from itertools import permutations
 from jsp.domain.jsp import Jsp
-
-
-@dataclass(slots=True, frozen=True)
-class ScheduleItem:
-    job: int
-    op: int
-    machine: int
-    start: int
-    end: int
-    duration: int
-
-    def __str__(self) -> str:
-        return (
-            f"{self.job:<6}{self.op:<6}{self.machine:<10}"
-            f"{self.start:<8}{self.end:<8}{self.duration:<10}"
-        )
-
-
-@dataclass(slots=True, frozen=True)
-class Schedule:
-    makespan: int
-    items: tuple[ScheduleItem, ...]
-
-    def __str__(self) -> str:
-        header = (
-            f"Optimal Makespan: {self.makespan}\n\n"
-            f"{'Job':<6}{'Op':<6}{'Machine':<10}{'Start':<8}{'End':<8}{'Duration':<10}\n"
-            + "-" * 50
-        )
-        sorted_items = sorted(self.items, key=lambda x: (x.job, x.op))
-        rows = "\n".join(str(item) for item in sorted_items)
-        return f"{header}\n{rows}"
-
+from jsp.domain.solution.schedule import Schedule
+from jsp.domain.solution.schedule_item import ScheduleItem
 
 def evaluate_makespan(jsp: Jsp, sequence: tuple[int, ...], max_machine_id: int) -> int:
     """Calcula el makespan para una secuencia dada."""
