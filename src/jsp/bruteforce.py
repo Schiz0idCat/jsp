@@ -1,9 +1,9 @@
-from typing import TypedDict
-
+from dataclasses import dataclass
 from jsp.domain.jsp import Jsp
 
 
-class ScheduleItem(TypedDict):
+@dataclass(slots=True, frozen=True)
+class ScheduleItem:
     job: int
     op: int
     machine: int
@@ -12,39 +12,12 @@ class ScheduleItem(TypedDict):
     duration: int
 
 
-def calculate_initial_upper_bound(
-    jobs_ops: list[list[tuple[int, int]]], n_jobs: int, max_machine_id: int
-) -> int:
-    """Calcula una cota superior inicial rápida usando una estrategia codiciosa (Greedy/FIFO)."""
-    job_end_time = [0] * n_jobs
-    machine_end_time = [0] * (max_machine_id + 1)
-    job_op_index = [0] * n_jobs
-
-    # Generamos una secuencia determinista simple pasando por cada trabajo en orden
-    total_ops = sum(len(ops) for ops in jobs_ops)
-    
-    for _ in range(total_ops):
-        # Elegimos el primer trabajo con operaciones pendientes
-        for job_idx in range(n_jobs):
-            if job_op_index[job_idx] < len(jobs_ops[job_idx]):
-                op_idx = job_op_index[job_idx]
-                machine, duration = jobs_ops[job_idx][op_idx]
-
-                start_time = max(job_end_time[job_idx], machine_end_time[machine])
-                end_time = start_time + duration
-
-                job_end_time[job_idx] = end_time
-                machine_end_time[machine] = end_time
-                job_op_index[job_idx] += 1
-                break
-
-    return max(job_end_time)
-
-
-def build_schedule(
-    jsp: Jsp, sequence: tuple[int, ...], max_machine_id: int
-) -> list[ScheduleItem]:
-    """Reconstruye el cronograma detallado únicamente para la secuencia ganadora final."""
+def simulate_sequence(
+    sequence: tuple[int, ...], 
+    jsp: Jsp, 
+    max_machine_id: int
+) -> tuple[int, list[ScheduleItem]]:
+    """Simulates a given sequence and calculates its detailed schedule and makespan."""
     job_end_time = [0] * jsp.total_jobs
     machine_end_time = [0] * (max_machine_id + 1)
     job_op_index = [0] * jsp.total_jobs
@@ -54,11 +27,9 @@ def build_schedule(
     for job_idx in sequence:
         job = jsp.jobs[job_idx]
         op_idx = job_op_index[job_idx]
-
         operation = job.operations[op_idx]
-        m_id = operation.machine
-        duration = operation.duration
 
+        m_id, duration = operation.machine, operation.duration
         start_time = max(job_end_time[job_idx], machine_end_time[m_id])
         end_time = start_time + duration
 
@@ -67,116 +38,79 @@ def build_schedule(
         job_op_index[job_idx] += 1
 
         schedule.append(
-            {
-                "job": job.id,
-                "op": op_idx + 1,
-                "machine": m_id,
-                "start": start_time,
-                "end": end_time,
-                "duration": duration,
-            }
+            ScheduleItem(
+                job=job.id,
+                op=op_idx + 1,
+                machine=m_id,
+                start=start_time,
+                end=end_time,
+                duration=duration,
+            )
         )
 
-    return schedule
+    return max(job_end_time), schedule
 
 
-def bruteforce(jsp: Jsp) -> None:
+def solve_jsp_bruteforce(jsp: Jsp) -> tuple[int, list[ScheduleItem]]:
+    """Solves the JSP instance using pure brute force (explores 100% of search space)."""
     if not jsp.jobs:
-        print("No jobs to process.")
-        return
+        return 0, []
 
-    n_jobs = jsp.total_jobs
-    max_machine_id = max(
-        op.machine for job in jsp.jobs for op in job.operations
-    ) if jsp.jobs else 0
+    max_machine_id = max(op.machine for job in jsp.jobs for op in job.operations)
+    total_ops = sum(len(job.operations) for job in jsp.jobs)
 
-    # Pre-caching: Aplanamos las operaciones para evitar lookups de atributos en la simulación
-    jobs_ops: list[list[tuple[int, int]]] = [
-        [(op.machine, op.duration) for op in job.operations]
-        for job in jsp.jobs
-    ]
+    best_makespan: float | int = float("inf")
+    best_sequence: tuple[int, ...] = ()
 
-    total_ops = sum(len(ops) for ops in jobs_ops)
-
-    # Reemplazamos Counter por una lista de enteros para acceso O(1) rápido sin overhead
-    remaining_ops = [len(ops) for ops in jobs_ops]
-
-    # Cota superior inicial para podar activamente desde el primer árbol de búsqueda
-    best_makespan = calculate_initial_upper_bound(jobs_ops, n_jobs, max_machine_id)
-    best_sequence: tuple[int, ...] | None = None
-
+    remaining_ops = [len(job.operations) for job in jsp.jobs]
     current_seq: list[int] = []
-    job_op_index = [0] * n_jobs
-    job_end_time = [0] * n_jobs
-    machine_end_time = [0] * (max_machine_id + 1)
 
-    def backtrack(depth: int) -> None:
+    def generate_all_sequences() -> None:
         nonlocal best_makespan, best_sequence
 
-        if depth == total_ops:
-            current_makespan = max(job_end_time)
-            if current_makespan < best_makespan:
-                best_makespan = current_makespan
+        if len(current_seq) == total_ops:
+            makespan, _ = simulate_sequence(tuple(current_seq), jsp, max_machine_id)
+            if makespan < best_makespan:
+                best_makespan = makespan
                 best_sequence = tuple(current_seq)
             return
 
-        for job_idx in range(n_jobs):
+        for job_idx in range(jsp.total_jobs):
             if remaining_ops[job_idx] > 0:
-                op_idx = job_op_index[job_idx]
-                machine, duration = jobs_ops[job_idx][op_idx]
-
-                prev_job_end = job_end_time[job_idx]
-                prev_machine_end = machine_end_time[machine]
-
-                start_time = max(prev_job_end, prev_machine_end)
-                end_time = start_time + duration
-
-                # PODA: Si ya igualamos o superamos la cota actual, descartamos la rama
-                if end_time >= best_makespan:
-                    continue
-
-                # Aplicar paso
-                job_end_time[job_idx] = end_time
-                machine_end_time[machine] = end_time
-                job_op_index[job_idx] += 1
                 remaining_ops[job_idx] -= 1
                 current_seq.append(job_idx)
 
-                backtrack(depth + 1)
+                generate_all_sequences()
 
-                # Revertir paso (Backtrack)
                 current_seq.pop()
                 remaining_ops[job_idx] += 1
-                job_op_index[job_idx] -= 1
-                machine_end_time[machine] = prev_machine_end
-                job_end_time[job_idx] = prev_job_end
 
-    print("Solving JSP using Optimized Brute Force (Branch and Bound)...")
-    backtrack(0)
+    generate_all_sequences()
 
-    # Si la poda inicial era tan buena que ninguna secuencia la superó explícitamente,
-    # ejecutamos la simulación determinista para obtener la secuencia base equivalente
-    if best_sequence is None:
-        # Reconstruimos la secuencia base que produjo la cota inicial
-        dummy_seq: list[int] = []
-        op_idx_dummy = [0] * n_jobs
-        for _ in range(total_ops):
-            for j_idx in range(n_jobs):
-                if op_idx_dummy[j_idx] < len(jobs_ops[j_idx]):
-                    dummy_seq.append(j_idx)
-                    op_idx_dummy[j_idx] += 1
-                    break
-        best_sequence = tuple(dummy_seq)
+    if not best_sequence:
+        return 0, []
 
-    best_schedule = build_schedule(jsp, best_sequence, max_machine_id)
+    return simulate_sequence(best_sequence, jsp, max_machine_id)
 
-    print(f"\nOptimal Makespan: {best_makespan}\n")
+
+def print_schedule(makespan: int, schedule: list[ScheduleItem]) -> None:
+    print(f"\nOptimal Makespan: {makespan}\n")
     print(f"{'Job':<6}{'Op':<6}{'Machine':<10}{'Start':<8}{'End':<8}{'Duration':<10}")
     print("-" * 50)
 
-    sorted_schedule = sorted(best_schedule, key=lambda x: (x["job"], x["op"]))
+    sorted_schedule = sorted(schedule, key=lambda x: (x.job, x.op))
     for item in sorted_schedule:
         print(
-            f"{item['job']:<6}{item['op']:<6}{item['machine']:<10}"
-            f"{item['start']:<8}{item['end']:<8}{item['duration']:<10}"
+            f"{item.job:<6}{item.op:<6}{item.machine:<10}"
+            f"{item.start:<8}{item.end:<8}{item.duration:<10}"
         )
+
+
+def bruteforce(jsp: Jsp) -> None:
+    """Legacy CLI entrypoint."""
+    print("Solving JSP using Pure Brute Force...")
+    makespan, schedule = solve_jsp_bruteforce(jsp)
+    if schedule:
+        print_schedule(makespan, schedule)
+    else:
+        print("No jobs to process.")
