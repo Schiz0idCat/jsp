@@ -2,6 +2,8 @@ import argparse
 import sys
 from pathlib import Path
 
+from alive_progress import alive_bar
+
 from jsp.solver import BruteForceSolver
 from jsp.parser.jsp_parser import JspParser
 
@@ -28,7 +30,9 @@ def main() -> None:
         print()
 
         solver = BruteForceSolver()
-        solution = solver.solve(instance)
+
+        with alive_bar(total=0, title="Solving...", spinner=None, bar=None, monitor=False, stats=False, receipt=False):
+            solution = solver.solve(instance)
 
         if solution is None:
             print("No solution")
