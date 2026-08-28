@@ -36,12 +36,6 @@ def main() -> None:
 
         print(solution)
 
-        if solution is None:
-            print("No solution")
-            return
-
-        print(solution)
-
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
