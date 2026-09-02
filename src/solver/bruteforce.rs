@@ -2,6 +2,7 @@ use super::Solver;
 use crate::domain::Jsp;
 use crate::domain::solution::{Schedule, ScheduleItem};
 use std::cmp;
+use std::time::{Duration, Instant};
 
 pub struct BruteForce;
 
@@ -72,7 +73,7 @@ impl BruteForce {
 }
 
 impl Solver for BruteForce {
-    fn solve(&self, jsp: &Jsp) -> Option<Schedule> {
+    fn solve_with_timeout(&self, jsp: &Jsp, timeout: Option<Duration>) -> Option<Schedule> {
         if jsp.jobs().is_empty() {
             return None;
         }
@@ -93,11 +94,18 @@ impl Solver for BruteForce {
 
         let mut best_makespan = usize::MAX;
         let mut best_sequence: Option<Vec<usize>> = None;
-
         let mut current_seq = base_sequence;
+
+        let start_time = Instant::now();
 
         if !current_seq.is_empty() {
             loop {
+                if let Some(limit) = timeout {
+                    if start_time.elapsed() >= limit {
+                        break;
+                    }
+                }
+
                 let makespan = self.evaluate_makespan(jsp, &current_seq, max_machine_id);
 
                 if makespan < best_makespan {

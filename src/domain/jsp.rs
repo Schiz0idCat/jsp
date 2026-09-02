@@ -1,3 +1,4 @@
+use std::time::Duration;
 use std::{fmt::Display, fs, path::Path, str::FromStr};
 
 use super::errors::{JspFileError, JspParseError};
@@ -44,6 +45,14 @@ impl Jsp {
 impl Jsp {
     pub fn solve<S: Solver>(&self, solver: S) -> Option<Schedule> {
         solver.solve(self)
+    }
+
+    pub fn solve_with_timeout<S: Solver>(
+        &self,
+        solver: S,
+        timeout: Option<Duration>,
+    ) -> Option<Schedule> {
+        solver.solve_with_timeout(self, timeout)
     }
 }
 

@@ -33,7 +33,7 @@ fn main() -> ExitCode {
     );
     spinner.enable_steady_tick(Duration::from_millis(100));
 
-    let solution = jsp.solve(BruteForce::new());
+    let solution = jsp.solve_with_timeout(BruteForce::new(), cli.timeout());
 
     spinner.finish_and_clear();
 
