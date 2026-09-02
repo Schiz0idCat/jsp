@@ -1,23 +1,19 @@
-use std::env;
-use std::path::Path;
 use std::process::ExitCode;
 use std::time::Duration;
 
+use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle};
 
-use jsp_r::domain::Jsp;
-use jsp_r::solver::BruteForce;
+use jsp::domain::Jsp;
+use jsp::solver::BruteForce;
+use jsp::ui::Cli;
 
 fn main() -> ExitCode {
-    let args: Vec<String> = env::args().collect();
+    // cli
+    let cli = Cli::parse();
+    let filepath = cli.filepath();
 
-    if args.len() < 2 {
-        eprintln!("Usage: {} <filepath>", args[0]);
-        return ExitCode::FAILURE;
-    }
-
-    let filepath = Path::new(&args[1]);
-
+    // jsp parser
     let jsp = match Jsp::from_file(filepath) {
         Ok(jsp) => jsp,
         Err(err) => {
@@ -28,6 +24,7 @@ fn main() -> ExitCode {
 
     println!("{}\n", jsp);
 
+    // barra de progreso
     let spinner = ProgressBar::new_spinner();
     spinner.set_style(
         ProgressStyle::default_spinner()
@@ -40,6 +37,7 @@ fn main() -> ExitCode {
 
     spinner.finish_and_clear();
 
+    // solución
     match solution {
         Some(schedule) => println!("{}", schedule),
         None => println!("No solution"),
