@@ -1,5 +1,2 @@
-mod bruteforce;
-mod solver;
-
-pub use bruteforce::BruteForce;
-pub use solver::Solver;
+pub mod solution;
+pub mod stop;

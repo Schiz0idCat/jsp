@@ -1,10 +1,10 @@
-use std::time::Duration;
 use std::{fmt::Display, fs, path::Path, str::FromStr};
 
 use super::errors::{JspFileError, JspParseError};
 use super::solution::Schedule;
 use super::{Job, Operation};
-use crate::solver::Solver;
+use crate::solver::solution::Solver;
+use crate::solver::stop::StopHandle;
 
 pub struct Jsp {
     n_jobs: usize,
@@ -47,12 +47,8 @@ impl Jsp {
         solver.solve(self)
     }
 
-    pub fn solve_with_timeout<S: Solver>(
-        &self,
-        solver: S,
-        timeout: Option<Duration>,
-    ) -> Option<Schedule> {
-        solver.solve_with_timeout(self, timeout)
+    pub fn solve_with_stop<S: Solver>(&self, solver: S, stop: &mut StopHandle) -> Option<Schedule> {
+        solver.solve_with_stop(self, stop)
     }
 }
 
