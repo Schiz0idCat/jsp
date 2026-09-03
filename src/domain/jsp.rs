@@ -1,4 +1,7 @@
-use std::{fmt::Display, fs, path::Path, str::FromStr};
+use std::fmt::Display;
+use std::fs;
+use std::path::Path;
+use std::str::FromStr;
 
 use super::errors::{JspFileError, JspParseError};
 use super::solution::Schedule;
@@ -6,12 +9,16 @@ use super::{Job, Operation};
 use crate::solver::solution::Solver;
 use crate::solver::stop::StopHandle;
 
+/// Representa la instancia completa del problema Job Shop Problem.
+/// Contiene las dimenciones del problema (cantidad de trabajo y máquinas),
+/// además del orden en que deben procesarse.
 pub struct Jsp {
     n_jobs: usize,
     n_machines: usize,
     jobs: Vec<Job>,
 }
 
+// Inicializadores
 impl Jsp {
     pub fn new(n_jobs: usize, n_machines: usize, jobs: Vec<Job>) -> Self {
         Self {
@@ -28,6 +35,7 @@ impl Jsp {
     }
 }
 
+// Getters
 impl Jsp {
     pub fn n_jobs(&self) -> usize {
         self.n_jobs
@@ -42,11 +50,15 @@ impl Jsp {
     }
 }
 
+// operaciones para resolver el problema
 impl Jsp {
+    /// Resuelve el problema con la solución óptima
     pub fn solve<S: Solver>(&self, solver: S) -> Option<Schedule> {
         solver.solve(self)
     }
 
+    /// Resuelve el problema con un criterio de detención.
+    /// Cuando se detiene retorna la mejor solución encontrada para ese entonces.
     pub fn solve_with_stop<S: Solver>(&self, solver: S, stop: &mut StopHandle) -> Option<Schedule> {
         solver.solve_with_stop(self, stop)
     }

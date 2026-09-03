@@ -4,13 +4,18 @@ use crate::domain::solution::{Schedule, ScheduleItem};
 use crate::solver::stop::StopHandle;
 use std::cmp;
 
+/// Estrategia de [`Jsp`] resuelto por fuerza bruta.
+/// Evalúa exhaustiavemente todas las permutaciones válidas,
+/// hasta encontrar la que tenga el mínimo makespan.
 pub struct BruteForce;
 
 impl BruteForce {
+    /// Inizializador lógico.
     pub fn new() -> Self {
         Self
     }
 
+    /// Calcula el makespan de una seciencia de operaciones.
     fn evaluate_makespan(&self, jsp: &Jsp, sequence: &[usize], max_machine_id: usize) -> usize {
         let mut job_end_time = vec![0; jsp.n_jobs()];
         let mut machine_end_time = vec![0; max_machine_id + 1];
@@ -35,6 +40,7 @@ impl BruteForce {
         job_end_time.into_iter().max().unwrap_or(0)
     }
 
+    /// Contruye un [`Schedule`] a partir de una secuencia válida.
     fn build_schedule(&self, jsp: &Jsp, sequence: &[usize], max_machine_id: usize) -> Schedule {
         let mut job_end_time = vec![0; jsp.n_jobs()];
         let mut machine_end_time = vec![0; max_machine_id + 1];

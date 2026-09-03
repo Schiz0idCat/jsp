@@ -12,7 +12,7 @@ use jsp::solver::stop::{CancelTokenCondition, StopHandle, TimeoutCondition};
 use jsp::ui::Cli;
 
 fn main() -> ExitCode {
-    // cli
+    // parseo de cli
     let cli = Cli::parse();
     let filepath = cli.filepath();
 
@@ -27,9 +27,11 @@ fn main() -> ExitCode {
 
     println!("{}\n", jsp);
 
+    // configuración de la interrupción del programa
     let cancel_token = Arc::new(AtomicBool::new(false));
     let ctrlc_token = Arc::clone(&cancel_token);
 
+    // registro de la interrupción del programa
     if let Err(err) = ctrlc::set_handler(move || {
         ctrlc_token.store(true, Ordering::Relaxed);
     }) {
@@ -46,6 +48,7 @@ fn main() -> ExitCode {
     );
     spinner.enable_steady_tick(Duration::from_millis(100));
 
+    // condiciones de parada
     let mut stop =
         StopHandle::new().with_condition(CancelTokenCondition::new(Arc::clone(&cancel_token)));
 
@@ -53,14 +56,17 @@ fn main() -> ExitCode {
         stop = stop.with_condition(TimeoutCondition::new(timeout));
     }
 
+    // algoritmo de solución
     let solution = jsp.solve_with_stop(BruteForce::new(), &mut stop);
 
-    spinner.finish_and_clear();
+    spinner.finish_and_clear(); // limpieza de la barra de progreso
 
+    // mensaje de alerta, si el programa es interrumpido por el usuario
     if cancel_token.load(Ordering::Relaxed) {
         println!("\n[!] Process interrupted by user. Best solution found so far:");
     }
 
+    // muestra la solución encontrada
     match solution {
         Some(schedule) => println!("{}", schedule),
         None => println!("No solution found"),

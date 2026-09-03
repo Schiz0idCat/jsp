@@ -1,16 +1,19 @@
 use std::fmt::Display;
 
+/// Representa una operación individual dentro de un [`Job`](super::Job)
 pub struct Operation {
     machine: usize,
     duration: usize,
 }
 
+// Inicializadores
 impl Operation {
     pub fn new(machine: usize, duration: usize) -> Self {
         Self { machine, duration }
     }
 }
 
+// Getters
 impl Operation {
     pub fn machine(&self) -> usize {
         self.machine

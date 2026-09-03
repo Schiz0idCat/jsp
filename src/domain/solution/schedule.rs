@@ -2,11 +2,16 @@ use std::fmt::Display;
 
 use super::ScheduleItem;
 
+/// Representa la solución o programación completa obtenida para una instancia JSP.
+///
+/// Almacena la lista de operaciones programadas ([`ScheduleItem`]) y el makespan global
+/// resultante (tiempo total para completar todos los trabajos).
 pub struct Schedule {
     makespan: usize,
     items: Vec<ScheduleItem>,
 }
 
+// Inicializadores
 impl Schedule {
     pub fn new(makespan: usize, items: Vec<ScheduleItem>) -> Self {
         Self { makespan, items }

@@ -1,5 +1,10 @@
 use std::fmt::Display;
 
+/// Representa la asignación de una operación específica dentro de la programación
+/// ([`Schedule`](super::Schedule)).
+///
+/// Registra qué trabajo y operación se ejecutan en qué máquina, junto con su tiempo
+/// de inicio, fin y duración total.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ScheduleItem {
     job: usize,
@@ -10,16 +15,7 @@ pub struct ScheduleItem {
     duration: usize,
 }
 
-impl ScheduleItem {
-    pub fn job(self) -> usize {
-        self.job
-    }
-
-    pub fn op(self) -> usize {
-        self.op
-    }
-}
-
+// Inicializadores
 impl ScheduleItem {
     pub fn new(
         job: usize,
@@ -37,6 +33,17 @@ impl ScheduleItem {
             end,
             duration,
         }
+    }
+}
+
+// Getters
+impl ScheduleItem {
+    pub fn job(self) -> usize {
+        self.job
+    }
+
+    pub fn op(self) -> usize {
+        self.op
     }
 }
 
