@@ -17,18 +17,20 @@ impl BruteForce {
 
     /// Calcula el makespan de una seciencia de operaciones.
     fn evaluate_makespan(&self, jsp: &Jsp, sequence: &[usize], max_machine_id: usize) -> usize {
-        let mut job_end_time = vec![0; jsp.n_jobs()];
-        let mut machine_end_time = vec![0; max_machine_id + 1];
-        let mut job_op_index = vec![0; jsp.n_jobs()];
+        let mut job_end_time = vec![0; jsp.n_jobs()]; // termino de los trabajos
+        let mut machine_end_time = vec![0; max_machine_id + 1]; // cuando se libera cada máquina
+        let mut job_op_index = vec![0; jsp.n_jobs()]; // operaciones para cada trabajo
 
         for &job_idx in sequence {
             let job = &jsp.jobs()[job_idx];
-            let op_idx = job_op_index[job_idx];
+            let op_idx = job_op_index[job_idx]; // obtiene la operación pendiente
 
+            // metadatos de la operación
             let operation = &job.operations()[op_idx];
             let m_id = operation.machine();
             let duration = operation.duration();
 
+            // el start time es cuando se libere el trabajo o la máquina, lo que pase último
             let start_time = cmp::max(job_end_time[job_idx], machine_end_time[m_id]);
             let end_time = start_time + duration;
 
@@ -94,7 +96,7 @@ impl Solver for BruteForce {
         let mut base_sequence = Vec::new();
         for (idx, job) in jsp.jobs().iter().enumerate() {
             for _ in 0..job.operations().len() {
-                base_sequence.push(idx);
+                base_sequence.push(idx); // si job 0 tiene 3 ops -> [0, 0, 0]
             }
         }
 
@@ -103,8 +105,8 @@ impl Solver for BruteForce {
         let mut current_seq = base_sequence;
 
         stop.start();
-        let mut iter_count: u64 = 0;
         const CHECK_INTERVAL: u64 = 100_000;
+        let mut iter_count: u64 = 0;
 
         if !current_seq.is_empty() {
             loop {
@@ -133,20 +135,30 @@ impl Solver for BruteForce {
 
 fn next_permutation<T: Ord>(arr: &mut [T]) -> bool {
     if arr.len() <= 1 {
-        return false;
+        return false; // no hay que permutar
     }
+
+    // Desde la derecha, busca un par de elementos no sea descendente
     let mut i = arr.len() - 1;
     while i > 0 && arr[i - 1] >= arr[i] {
         i -= 1;
     }
+
     if i == 0 {
-        return false;
+        return false; // si no encuentra ningún par, la lista ya está completamente invertida
     }
+
+    let idx_pivot = i - 1;
+    let pivot = &arr[idx_pivot]; // primer elemento del par no descendente
+
+    // Desde la derecha, busca el elemento más pequeño que sea mayor al pivote
     let mut j = arr.len() - 1;
-    while arr[j] <= arr[i - 1] {
+    while arr[j] <= *pivot {
         j -= 1;
     }
-    arr.swap(i - 1, j);
+
+    arr.swap(idx_pivot, j);
     arr[i..].reverse();
+
     true
 }
