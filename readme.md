@@ -17,7 +17,14 @@ cargo build --release   # Compilación
 ❯ ./target/release/jsp --help
 Job Shop Scheduling Problem (JSP) Solver
 
-Usage: jsp [OPTIONS] --file <FILE>
+Usage: jsp [OPTIONS] --file <FILE> <COMMAND>
+
+Commands:
+  bruteforce    
+  random        
+  swap          
+  local-search  
+  help          Print this message or the help of the given subcommand(s)
 
 Options:
   -f, --file <FILE>        Ruta al archivo con el problema
@@ -28,6 +35,25 @@ Options:
 El programa recibe 2 argumentos:
 - '-f' 'ruta/al/archivo': Ruta a una instancia del problema. Almacenados en: [data](./data).
 - '-t' 'int': Tiempo límite en segundos.
+
+Subcomandos:
+- 'bruteforce': Ejecuta la búsqueda exhaustiva para encontrar la solución óptima.
+- 'random': Ejecuta una búsqueda aleatoria basada en muestreo.
+- 'swap': Operador de vecindario basado en intercambios (TODO).
+- 'local-search': Búsqueda local por primera mejora (TODO).
+
+Nota:
+Algunos subcomandos tienen sus propios argumentos, para más información ejecutar:
+```sh
+❯ ./target/release/jsp <COMMAND> --help
+```
+
+Ejemplos de uso:
+```sh
+❯ ./target/release/jsp -f data/facil.txt -t 60 bruteforce
+
+❯ ./target/release/jsp -f data/facil.txt -t 60 random -s 99999999
+```
 
 El argumento '-f' es obligatorio, pues el programa no puede resolver una instancia vacía.
 Mientras que el argumento '-t' para el timeout, es opcional.
