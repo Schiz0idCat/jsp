@@ -2,7 +2,7 @@ use super::Strategy;
 use crate::domain::Jsp;
 use crate::domain::solution::Schedule;
 use crate::solver::solution::Solver;
-use crate::solver::solution::strategies::{BruteForce, Random};
+use crate::solver::solution::strategies::{BruteForce, LocalSearch, Random};
 use crate::solver::stop::{CancelCondition, StopHandle, TimeoutCondition};
 use crate::ui::errors::SolverError;
 
@@ -38,7 +38,7 @@ impl SolverData {
             Strategy::Bruteforce => Box::new(BruteForce::new()),
             Strategy::Random { samples } => Box::new(Random::new(samples)),
             Strategy::Swap => todo!(),
-            Strategy::LocalSearch => todo!(),
+            Strategy::LocalSearch { samples } => Box::new(LocalSearch::new(samples)),
         };
 
         Ok(Self {
