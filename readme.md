@@ -62,7 +62,7 @@ Al terminar (o al ser interrumpido), el programa muestra por consola la mejor so
 
 Ejemplo:
 ```sh
-❯ ./target/release/jsp -f data/minimo.txt -t 60
+❯ ./target/release/jsp -f data/minimo.txt -t 60 bruteforce
 JSP Instance [3 Jobs x 3 Machines]
 ---------------------------------------------
        |    Op 1    |    Op 2    |    Op 3   
