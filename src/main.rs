@@ -2,43 +2,29 @@ use std::process::ExitCode;
 
 use clap::Parser;
 
-use jsp::domain::Jsp;
-use jsp::solver::solution::strategies::BruteForce;
-use jsp::solver::stop::{CancelCondition, StopHandle, TimeoutCondition};
-use jsp::ui::{Cli, Progress};
+use jsp::ui::{Cli, Progress, SolverData};
 
 fn main() -> ExitCode {
     // parseo de cli
     let cli = Cli::parse();
 
-    // jsp parser
-    let jsp = match Jsp::from_file(cli.filepath()) {
-        Ok(jsp) => jsp,
+    let mut solver_data = match SolverData::new(cli.filepath(), cli.timeout(), cli.strategy()) {
+        Ok(data) => data,
         Err(err) => {
-            eprintln!("Error reading file {:?}: {}", cli.filepath(), err);
+            eprintln!("{}", err);
             return ExitCode::FAILURE;
         }
     };
 
-    println!("{}\n", jsp);
+    println!("{}\n", solver_data.jsp());
 
     // barra de progreso
     let progress = Progress::start();
 
-    // configuración de la interrupción del programa
-    let cancel = CancelCondition::handle_ctrlc().expect("Error setting Ctrl+C handler");
-
-    // condiciones de parada
-    let mut stop = StopHandle::new().with_condition(cancel.clone());
-
-    if let Some(timeout) = cli.timeout() {
-        stop = stop.with_condition(TimeoutCondition::new(timeout));
-    }
-
     // algoritmo de solución
-    let solution = jsp.solve_with_stop(BruteForce::new(), &mut stop);
+    let solution = solver_data.solve();
 
-    progress.finish(&cancel); // limpieza de la barra de progreso
+    progress.finish(solver_data.cancel_handle()); // limpieza de la barra de progreso
 
     // muestra la solución encontrada
     match solution {

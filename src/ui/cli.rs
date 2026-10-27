@@ -1,3 +1,5 @@
+use super::Strategy;
+
 use clap::Parser;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -13,6 +15,10 @@ pub struct Cli {
     /// Tiempo límite opcional.
     #[arg(short, long, value_name = "SECONDS")]
     timeout: Option<u64>,
+
+    /// Subcomando para elegir la estrategia de solución.
+    #[command(subcommand)]
+    strategy: Strategy,
 }
 
 // Getters
@@ -26,5 +32,9 @@ impl Cli {
             Some(0) | None => None,
             Some(secs) => Some(Duration::from_secs(secs)),
         }
+    }
+
+    pub fn strategy(&self) -> Strategy {
+        self.strategy
     }
 }
