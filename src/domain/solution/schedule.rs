@@ -23,7 +23,7 @@ impl Display for Schedule {
         let mut sorted_items = self.items.clone();
         sorted_items.sort_by_key(|item| (item.job(), item.op()));
 
-        writeln!(f, "Optimal Makespan: {}\n", self.makespan)?;
+        writeln!(f, "Makespan encontrado: {}\n", self.makespan)?;
         writeln!(
             f,
             "{:<6}{:<6}{:<10}{:<8}{:<8}{:<10}",
