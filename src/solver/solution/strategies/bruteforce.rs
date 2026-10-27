@@ -1,5 +1,5 @@
-use super::SolutionBuilder;
-use super::Solver;
+use super::super::SolutionBuilder;
+use super::super::Solver;
 use crate::domain::Jsp;
 use crate::domain::solution::Schedule;
 use crate::solver::stop::StopHandle;

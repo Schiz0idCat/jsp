@@ -3,7 +3,7 @@ use std::process::ExitCode;
 use clap::Parser;
 
 use jsp::domain::Jsp;
-use jsp::solver::solution::BruteForce;
+use jsp::solver::solution::strategies::BruteForce;
 use jsp::solver::stop::{CancelCondition, StopHandle, TimeoutCondition};
 use jsp::ui::{Cli, Progress};
 
