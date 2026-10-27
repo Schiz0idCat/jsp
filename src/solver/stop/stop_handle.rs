@@ -7,7 +7,7 @@ pub struct StopHandle {
 }
 
 impl StopHandle {
-    /// Inicializa un [`StopHandle`]
+    /// Inicializa un [`StopHandle`] vacío.
     pub fn new() -> Self {
         Self {
             conditions: Vec::new(),

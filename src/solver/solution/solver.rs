@@ -9,7 +9,7 @@ pub trait Solver {
 
     /// Resuelve el problema.
     fn solve(&self, jsp: &Jsp) -> Option<Schedule> {
-        let mut stop = StopHandle::new();
+        let mut stop = StopHandle::new(); // condición de parada vacío.
         self.solve_with_stop(jsp, &mut stop)
     }
 }
