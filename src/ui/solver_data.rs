@@ -37,6 +37,8 @@ impl SolverData {
         let solver: Box<dyn Solver> = match strategy {
             Strategy::Bruteforce => Box::new(BruteForce::new()),
             Strategy::Random { samples } => Box::new(Random::new(samples)),
+            Strategy::Swap => todo!(),
+            Strategy::LocalSearch => todo!(),
         };
 
         Ok(Self {

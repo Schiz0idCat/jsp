@@ -1,3 +1,5 @@
+//! Esta estrategia resuelve el taller 5
+
 use rand::rng;
 use rand::seq::SliceRandom;
 
