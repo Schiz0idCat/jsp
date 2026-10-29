@@ -7,7 +7,7 @@ pub enum Strategy {
         #[arg(short, long, default_value = "1")]
         samples: usize,
     },
-    Swap, // TODO: Cuando se termine con la estrategia swap, esto podría cambiar.
+    Swap,
     LocalSearch {
         #[arg(short, long, default_value = "1")]
         samples: usize,

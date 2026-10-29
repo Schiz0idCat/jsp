@@ -1,4 +1,4 @@
-use super::Strategy;
+use crate::ui::Strategy;
 
 use clap::Parser;
 use std::path::{Path, PathBuf};
