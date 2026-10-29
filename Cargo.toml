@@ -3,6 +3,14 @@ name = "jsp"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "jsp"
+path = "src/main.rs"
+
+[[bin]]
+name = "benchmark"
+path = "benches/benchmark.rs"
+
 [dependencies]
 clap = { version = "4.6.6", features = ["derive"] }
 ctrlc = "3.5.2"
