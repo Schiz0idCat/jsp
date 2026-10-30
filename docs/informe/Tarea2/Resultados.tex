@@ -1,0 +1,84 @@
+\chapter{Resultados}
+\label{ch:resultados}
+
+\section{Configuración experimental}
+
+Los experimentos se realizaron con el binario compilado en modo \texttt{release}. Para cada una de las tres instancias se ejecutó el recocido simulado diez veces de forma independiente, utilizando los parámetros de la Tabla~\ref{tab:parametros} y sin tiempo límite. Cada ejecución parte de una permutación inicial aleatoria distinta, por lo que los resultados reflejan la variabilidad propia del algoritmo.
+
+El equipo de pruebas fue un computador con procesador Intel Core i3-1215U, 8 GB de memoria RAM y sistema operativo Linux. La implementación utilizó Rust 1.96.0 y las bibliotecas \texttt{clap}, \texttt{rand}, \texttt{indicatif}, \texttt{ctrlc} y \texttt{thiserror}. El binario \texttt{benchmark} automatizó las treinta ejecuciones y el cálculo de los estadísticos.
+
+\section{Resultados por ejecución}
+
+La Tabla~\ref{tab:ejecuciones} presenta el makespan obtenido en cada una de las diez ejecuciones para las tres instancias, junto con la media y la desviación estándar muestral.
+
+\begin{table}[htbp]
+\centering
+\caption{Makespan obtenido en diez ejecuciones independientes por instancia.}
+\label{tab:ejecuciones}
+\begin{tabular}{crrr}
+\toprule
+Ejecución & Fácil (\(6\times6\)) & Medio (\(15\times10\)) & Difícil (\(50\times10\)) \\
+\midrule
+1  & 55 & 1077 & 2794 \\
+2  & 55 & 1053 & 2794 \\
+3  & 55 & 1054 & 2794 \\
+4  & 55 & 1039 & 2794 \\
+5  & 55 & 1032 & 2794 \\
+6  & 55 & 1032 & 2794 \\
+7  & 55 & 1032 & 2794 \\
+8  & 55 & 1032 & 2794 \\
+9  & 55 & 1038 & 2794 \\
+10 & 55 & 1032 & 2794 \\
+\midrule
+Media & 55,00 & 1042,10 & 2794,00 \\
+Desviación estándar & 0,00 & 14,96 & 0,00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Resumen estadístico}
+
+La Tabla~\ref{tab:resumen} resume los principales estadísticos por instancia y los compara con el óptimo. La brecha media se calcula como la diferencia porcentual entre la media de las diez ejecuciones y el óptimo.
+
+\begin{table}[htbp]
+\centering
+\caption{Resumen estadístico de las diez ejecuciones por instancia.}
+\label{tab:resumen}
+\begin{tabular}{lrrrrrr}
+\toprule
+Instancia & Óptimo & Mejor & Peor & Media & Desv. est. & Brecha media \\
+\midrule
+Fácil   & 55   & 55   & 55   & 55,00   & 0,00  & 0,00\,\% \\
+Medio   & 1032 & 1032 & 1077 & 1042,10 & 14,96 & 0,98\,\% \\
+Difícil & 2794 & 2794 & 2794 & 2794,00 & 0,00  & 0,00\,\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Análisis de resultados}
+
+En la instancia fácil, las diez ejecuciones alcanzaron el mismo makespan de 55, que corresponde al óptimo. La desviación estándar nula indica que el algoritmo fue completamente estable en esta instancia. El tamaño reducido del problema (\(6\times6\), 36 operaciones) permite que el presupuesto de 27.625 iteraciones explore el espacio de búsqueda con suficiente profundidad, incluso partiendo de soluciones iniciales aleatorias distintas.
+
+En la instancia media, seis de las diez ejecuciones alcanzaron el óptimo de 1032, mientras que las cuatro restantes obtuvieron valores entre 1038 y 1077. La media fue 1042,10 y la desviación estándar 14,96, lo que representa una brecha media de solo 0,98\,\% respecto del óptimo. La mayor variabilidad se explica por el tamaño del problema (\(15\times10\), 150 operaciones) y por la naturaleza estocástica del recocido simulado: la calidad del óptimo local alcanzado depende de la trayectoria seguida y de la solución inicial. Aun así, el peor resultado (1077) se encuentra a solo 4,36\,\% del óptimo, lo que muestra que el algoritmo mantiene una calidad aceptable incluso en sus ejecuciones menos favorables.
+
+En la instancia difícil, las diez ejecuciones alcanzaron el valor 2794, que coincide con la cota inferior determinada por la máquina más cargada. La desviación estándar nula y la coincidencia con el óptimo indican que, para esta instancia, la estructura del problema guía al algoritmo hacia una solución de alta calidad de forma consistente. El mayor número de operaciones (\(50\times10\), 500 operaciones) no impidió alcanzar el óptimo, aunque el costo por evaluación es mayor que en las otras instancias.
+
+En términos generales, el recocido simulado mostró un comportamiento robusto: con un único conjunto de parámetros y sin ajuste por instancia, alcanzó el óptimo en las tres instancias y mantuvo una brecha media inferior al 1\,\% en el caso más variable. El presupuesto de aproximadamente 27.625 iteraciones por ejecución resultó suficiente para las instancias estudiadas y el costo computacional fue bajo: menos de 0,03 s por ejecución en el equipo de pruebas.
+
+\section{Gráfico de cajas}
+
+La Figura~\ref{fig:boxplot} reserva el espacio para el gráfico de cajas de los makespan obtenidos en las diez ejecuciones de cada instancia. El gráfico permitirá visualizar la dispersión, la mediana y los valores extremos de cada conjunto de resultados.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=0.85\textwidth]{Tarea2/imagenes/boxplot.pdf}
+\fbox{\parbox[c][6cm][c]{0.82\textwidth}{
+\centering
+\textit{Espacio reservado para el gráfico de cajas de makespan por instancia.\\
+Reemplazar este recuadro por la figura definitiva.}
+}}
+\caption{Gráfico de cajas del makespan obtenido en diez ejecuciones por instancia.}
+\label{fig:boxplot}
+\end{figure}
+
+La instancia fácil y la instancia difícil presentan una dispersión nula, por lo que sus cajas se reducen a una línea en el valor óptimo. La instancia media concentra la mayor dispersión, con seis ejecuciones en 1032 y cuatro valores superiores. Este comportamiento es consistente con el análisis de la sección anterior y sugiere que el algoritmo es más sensible a la trayectoria en problemas de tamaño intermedio.

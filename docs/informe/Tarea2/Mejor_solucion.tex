@@ -1,0 +1,33 @@
+\chapter{Mejor solución}
+\label{ch:mejor_solucion}
+
+Para cada instancia se registró la mejor solución encontrada entre las diez ejecuciones independientes. La Tabla~\ref{tab:mejor_solucion} presenta el makespan de la mejor solución, el valor óptimo de referencia y la brecha correspondiente. Los valores óptimos fueron verificados con un modelo de programación de restricciones resuelto con \gls{cpsat} de OR-Tools \parencite{ortools}, utilizado únicamente como referencia de evaluación y no como parte de la metaheurística implementada.
+
+\begin{table}[htbp]
+\centering
+\caption{Mejor solución encontrada para cada instancia.}
+\label{tab:mejor_solucion}
+\begin{tabular}{lrrrrr}
+\toprule
+Instancia & Tamaño & Mejor \(C_{\max}\) & Óptimo & Brecha & Ejecuciones óptimas \\
+\midrule
+Fácil   & \(6\times6\)   & 55   & 55   & 0,00\,\% & 10/10 \\
+Medio   & \(15\times10\) & 1032 & 1032 & 0,00\,\% & 6/10 \\
+Difícil & \(50\times10\) & 2794 & 2794 & 0,00\,\% & 10/10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La mejor solución de la instancia fácil se obtuvo en las diez ejecuciones, con un makespan de 55. En la instancia media, el óptimo de 1032 se alcanzó en seis de las diez ejecuciones; las cuatro restantes quedaron entre 1038 y 1077. En la instancia difícil, las diez ejecuciones alcanzaron el valor 2794, que coincide con la cota inferior dada por la carga total de la máquina más congestionada.
+
+La brecha se calculó como
+\[
+    \text{brecha} = \frac{C_{\max}^{\text{mejor}} - C_{\max}^{\text{óptimo}}}{C_{\max}^{\text{óptimo}}} \times 100\,\%.
+\]
+En las tres instancias la mejor solución encontrada es óptima, por lo que la brecha es cero. La diferencia entre ejecuciones se analiza con mayor detalle en el Capítulo~\ref{ch:resultados}.
+
+La programación completa de la mejor solución puede reconstruirse ejecutando el binario sobre la instancia correspondiente. Por ejemplo, para la instancia fácil:
+\begin{verbatim}
+./target/release/jsp -f data/facil.txt simulated-annealing
+\end{verbatim}
+La salida incluye el makespan y una tabla con el trabajo, la operación, la máquina, el instante de inicio, el instante de término y la duración de cada operación.

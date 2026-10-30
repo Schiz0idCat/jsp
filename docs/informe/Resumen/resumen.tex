@@ -1,0 +1,27 @@
+\chapter*{Resumen}
+\addcontentsline{toc}{chapter}{Resumen/Abstract\vspace{-0.5cm}}
+
+El presente informe describe la implementación y evaluación de una metaheurística de recocido simulado
+(\emph{Simulated Annealing}) para resolver el problema de programación de talleres de trabajo
+(\emph{Job Shop Scheduling Problem}, JSP).
+El objetivo es minimizar el tiempo total de término de todos los trabajos,
+conocido como \emph{makespan},
+respetando el orden tecnológico de las operaciones de cada trabajo y la capacidad de cada máquina.
+La solución se representa mediante una secuencia de identificadores de trabajo que siempre es factible
+y se decodifica con una regla de programación que asigna cada operación
+al primer instante disponible de su máquina y de su trabajo.
+El vecindario se genera intercambiando dos posiciones de la secuencia
+y la aceptación de soluciones peores sigue el criterio de Metropolis,
+con un esquema de enfriamiento geométrico.
+
+La implementación se realizó en Rust y se evaluó sobre tres instancias de complejidad creciente:
+\(6\times6\), \(15\times10\) y \(50\times10\).
+Para cada instancia se ejecutó el algoritmo diez veces con los mismos parámetros.
+La mejor solución encontrada alcanzó el óptimo en las tres instancias: 55, 1032 y 2794 unidades de tiempo, respectivamente.
+La instancia de tamaño medio presentó la mayor variabilidad,
+con una media de 1042{,}10 y una desviación estándar de 14{,}96,
+mientras que las instancias fácil y difícil alcanzaron el óptimo en las diez ejecuciones.
+Los resultados muestran que la metaheurística es simple,
+robusta y computacionalmente económica para las instancias estudiadas.
+
+{\bf Palabras clave:} Job Shop Scheduling, recocido simulado, metaheurística, makespan, optimización combinatoria.

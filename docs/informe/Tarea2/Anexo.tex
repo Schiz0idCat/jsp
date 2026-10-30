@@ -1,0 +1,75 @@
+\chapter{Instrucciones de ejecución}
+\label{ch:anexo}
+
+\section{Compilación y ejecución}
+
+El código se compila con Cargo, compilador de Rust. Desde la raíz del repositorio se ejecuta:
+\begin{verbatim}
+cargo build --release
+\end{verbatim}
+
+El binario principal se encuentra en \texttt{target/release/jsp} y recibe la ruta de la instancia,
+un tiempo límite opcional y el subcomando de la estrategia.
+Para el recocido simulado con los parámetros por defecto:
+\begin{verbatim}
+./target/release/jsp -f data/facil.txt simulated-annealing
+./target/release/jsp -f data/medio.txt simulated-annealing
+./target/release/jsp -f data/dificil.txt simulated-annealing
+\end{verbatim}
+
+Para ejecutar la experimentación completa de diez repeticiones por instancia:
+\begin{verbatim}
+./target/release/benchmark
+\end{verbatim}
+
+La ayuda de la interfaz de línea de comandos se obtiene con:
+\begin{verbatim}
+./target/release/jsp --help
+./target/release/jsp simulated-annealing --help
+\end{verbatim}
+
+\section{Estructura del repositorio}
+
+\begin{verbatim}
+jsp/
+|-- Cargo.toml
+|-- README.txt
+|-- data/
+|   |-- facil.txt
+|   |-- medio.txt
+|   `-- dificil.txt
+|-- src/
+|   |-- domain/
+|   |-- solver/
+|   |-- ui/
+|   `-- main.rs
+|-- benches/
+|   `-- benchmark.rs
+`-- docs/
+    `-- informe/
+\end{verbatim}
+
+El archivo \texttt{README.txt} contiene las instrucciones de ejecución y
+la identificación de todos los integrantes del grupo,
+conforme a lo solicitado en el enunciado de la tarea.
+
+\section{Instancias utilizadas}
+
+Las tres instancias se almacenan en la carpeta \texttt{data} y utilizan el formato estándar del \gls{jsp}:
+la primera línea contiene el número de trabajos y de máquinas;
+cada línea siguiente contiene pares (máquina, duración) en el orden tecnológico del trabajo correspondiente.
+
+\begin{table}[htbp]
+\centering
+\caption{Instancias utilizadas en la experimentación.}
+\label{tab:instancias}
+\begin{tabular}{lrrr}
+\toprule
+Instancia & Trabajos & Máquinas & Operaciones \\
+\midrule
+Fácil   & 6  & 6  & 36 \\
+Medio   & 15 & 10 & 150 \\
+Difícil & 50 & 10 & 500 \\
+\bottomrule
+\end{tabular}
+\end{table}

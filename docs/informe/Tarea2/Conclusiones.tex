@@ -1,0 +1,34 @@
+\chapter{Conclusiones}
+\label{ch:conclusiones}
+
+En este trabajo se implementó y evaluó una metaheurística de recocido simulado para resolver el problema de Job Shop Scheduling. El algoritmo se desarrolló íntegramente en Rust, con una representación de soluciones basada en secuencias de trabajos y un decodificador que garantiza el cumplimiento de las precedencias y de la capacidad de las máquinas. Se evaluaron tres instancias de complejidad creciente y se realizaron diez ejecuciones independientes por instancia.
+
+Los resultados muestran que la mejor solución encontrada alcanzó el óptimo en las tres instancias: 55 para la instancia fácil, 1032 para la instancia media y 2794 para la instancia difícil. La instancia media presentó la mayor variabilidad, con una media de 1042,10 y una desviación estándar de 14,96, mientras que las instancias fácil y difícil alcanzaron el óptimo en las diez ejecuciones. La brecha media en el caso más variable fue inferior al 1\,\%, lo que confirma la calidad del algoritmo con un presupuesto computacional reducido.
+
+\section{¿Qué aprendió implementando la metaheurística?}
+
+La implementación permitió comprender que el desempeño de una metaheurística no depende únicamente del algoritmo, sino también de la representación de las soluciones, de la función de decodificación y del vecindario. Una representación adecuada puede garantizar la factibilidad de todas las soluciones y simplificar enormemente la búsqueda. También se aprendió que el esquema de enfriamiento y el criterio de aceptación son fundamentales para equilibrar exploración y explotación, y que la experimentación sistemática con varias ejecuciones es necesaria para medir la variabilidad del método.
+
+Desde el punto de vista de la ingeniería de software, el trabajo permitió aplicar conceptos de diseño modular, rasgos y separación de responsabilidades en Rust, además de automatizar la experimentación mediante un binario de benchmark.
+
+\section{¿Cuál fue el desafío más grande de implementar la metaheurística?}
+
+El desafío más grande fue diseñar una representación que preservara la factibilidad de las soluciones y, al mismo tiempo, permitiera evaluar el makespan de forma eficiente. La secuencia de trabajos con repeticiones debe decodificarse respetando tanto el orden de las operaciones de cada trabajo como la disponibilidad de las máquinas; cualquier error en esta lógica produce soluciones infactibles o valores de makespan incorrectos. La validación con la instancia mínima y con la estrategia de fuerza bruta fue clave para detectar y corregir este tipo de errores.
+
+Otro desafío importante fue la calibración de los parámetros. Un enfriamiento demasiado rápido reduce la exploración y puede estancar el algoritmo en un óptimo local; un enfriamiento demasiado lento incrementa innecesariamente el tiempo de ejecución. Encontrar un equilibrio adecuado requirió probar distintas configuraciones y analizar su efecto sobre la calidad de las soluciones.
+
+\section{¿Tiene alguna idea para mejorar los resultados?}
+
+Existen varias líneas de mejora. En primer lugar, se podría utilizar un vecindario más informado, por ejemplo, intercambios basados en la ruta crítica o movimientos de inserción en lugar de swaps aleatorios. En segundo lugar, se podría implementar un esquema de enfriamiento adaptativo o con recalentamientos periódicos para escapar de óptimos locales profundos. En tercer lugar, se podría combinar el recocido simulado con una búsqueda local intensiva al final de la ejecución, o ejecutar varias réplicas en paralelo y quedarse con la mejor solución. Finalmente, se podrían ajustar los parámetros por instancia mediante un estudio experimental más amplio o utilizar un enfoque de \emph{tuning} automático.
+
+Otra mejora posible es incorporar información específica del problema, como cotas inferiores por carga de máquina, para guiar la búsqueda o para detener el algoritmo cuando se alcanza una solución que coincide con la cota. Esto permitiría ahorrar evaluaciones en instancias donde el óptimo está determinado por la máquina más congestionada.
+
+\section{¿Cree que este tipo de técnicas puede ser aplicada en la realidad chilena?}
+
+Sí. Las metaheurísticas como el recocido simulado son especialmente útiles en contextos donde los métodos exactos no son viables por el tamaño o la complejidad de los problemas. En Chile, este tipo de técnicas puede aplicarse en la planificación de la producción de pequeñas y medianas empresas manufactureras, en la programación de talleres de mantenimiento, en la gestión de turnos y en la logística de distribución. La principal barrera no es el algoritmo, sino la disponibilidad de datos confiables y la capacidad de integrar la solución con los sistemas de información existentes.
+
+Además, el bajo costo computacional del recocido simulado permite ejecutarlo en computadores personales o en servidores modestos, sin necesidad de infraestructura especializada. Esto lo convierte en una alternativa accesible para organizaciones que no pueden invertir en soluciones comerciales de optimización. Con una adecuada capacitación y un proceso de validación con datos reales, este tipo de técnicas podría aportar mejoras concretas en eficiencia y en tiempos de respuesta.
+
+\section{Conclusión general}
+
+El recocido simulado demostró ser una metaheurística adecuada para el problema estudiado: simple de implementar, fácil de parametrizar y capaz de alcanzar el óptimo en las tres instancias con un presupuesto computacional reducido. La combinación de una representación factible, un decodificador eficiente y un criterio de aceptación probabilístico permitió obtener resultados de alta calidad y una variabilidad controlada. El trabajo deja abiertas varias líneas de mejora que podrían aumentar la robustez del algoritmo en instancias de mayor tamaño o en problemas con restricciones adicionales.

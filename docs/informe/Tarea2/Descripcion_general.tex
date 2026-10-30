@@ -1,0 +1,70 @@
+\chapter{Descripción general}
+\label{ch:descripcion}
+
+\section{El problema de Job Shop Scheduling}
+
+Formalmente, una instancia del \gls{jsp} está compuesta por un conjunto de \(n\) trabajos y un conjunto de \(m\) máquinas. Cada trabajo \(J_i\), con \(i=1,\ldots,n\), debe ejecutar una secuencia ordenada de operaciones
+\[
+    O_{i1} \rightarrow O_{i2} \rightarrow \cdots \rightarrow O_{im_i},
+\]
+donde \(m_i\) es el número de operaciones del trabajo \(i\). Cada operación \(O_{ij}\) requiere la máquina \(m_{ij}\) durante un tiempo de procesamiento \(p_{ij}\) y no puede interrumpirse una vez iniciada. La secuencia de operaciones de cada trabajo representa su ruta tecnológica y debe respetarse estrictamente.
+
+Sea \(s_{ij}\) el instante de inicio de la operación \(O_{ij}\). Las restricciones de precedencia dentro de cada trabajo se expresan como
+\[
+    s_{i,j+1} \ge s_{ij} + p_{ij}, \qquad j=1,\ldots,m_i-1.
+\]
+Además, dos operaciones que utilizan la misma máquina no pueden superponerse en el tiempo. Si \(O_{ij}\) y \(O_{kl}\) requieren la misma máquina, entonces debe cumplirse una de las dos condiciones siguientes:
+\[
+    s_{ij} + p_{ij} \le s_{kl}
+    \qquad \text{o} \qquad
+    s_{kl} + p_{kl} \le s_{ij}.
+\]
+El instante de término del trabajo \(i\) es \(C_i = s_{i,m_i} + p_{i,m_i}\), y el makespan se define como
+\[
+    C_{\max} = \max_{i=1,\ldots,n} C_i.
+\]
+El objetivo del problema es encontrar una programación factible que minimice \(C_{\max}\). En este informe se utilizan tres instancias de complejidad creciente: \(6\times6\), \(15\times10\) y \(50\times10\), donde el primer valor corresponde al número de trabajos y el segundo al número de máquinas.
+
+\section{Metaheurística seleccionada}
+
+\subsection{Tipo de metaheurística}
+
+El recocido simulado es una metaheurística de trayectoria, también denominada de solución única. A diferencia de las metaheurísticas poblacionales, como los algoritmos genéticos o la optimización por enjambre de partículas, el recocido simulado mantiene una sola solución actual y la modifica iterativamente mediante un operador de vecindario \parencite{talbi2009}. Su funcionamiento se inspira en el proceso físico de recocido de los metales: a altas temperaturas los átomos pueden reorganizarse y aceptar configuraciones de mayor energía; a medida que la temperatura disminuye, el sistema converge hacia configuraciones de menor energía \parencite{kirkpatrick1983}.
+
+En el contexto de optimización, la ``energía'' corresponde al valor de la función objetivo y la ``temperatura'' controla la probabilidad de aceptar soluciones peores. Si \(x\) es la solución actual, \(x'\) es un vecino y \(\Delta = f(x') - f(x)\), el criterio de aceptación de Metropolis es
+\[
+    P(\text{aceptar } x') =
+    \begin{cases}
+        1, & \text{si } \Delta < 0, \\[0.2cm]
+        e^{-\Delta/T}, & \text{si } \Delta \ge 0,
+    \end{cases}
+\]
+donde \(T>0\) es la temperatura actual. Cuando \(T\) es alta, la probabilidad de aceptar un empeoramiento es considerable y el algoritmo explora ampliamente el espacio de búsqueda. Cuando \(T\) se aproxima a cero, la probabilidad de aceptar soluciones peores disminuye y el algoritmo se comporta como una búsqueda local descendente.
+
+\subsection{Ventajas y desventajas}
+
+Las principales ventajas del recocido simulado son:
+
+\begin{itemize}
+    \item Es sencillo de implementar y requiere pocos parámetros: temperatura inicial, temperatura mínima, factor de enfriamiento y criterio de parada.
+    \item Permite escapar de óptimos locales gracias a la aceptación probabilística de soluciones peores.
+    \item Es un algoritmo \emph{anytime}: en cualquier momento de la ejecución se dispone de una solución factible y de la mejor solución encontrada hasta ese instante.
+    \item Se adapta con facilidad a problemas combinatorios en los que es posible definir un vecindario y una función objetivo.
+    \item Tiene un bajo costo computacional por iteración cuando la evaluación del vecindario puede realizarse de forma eficiente.
+\end{itemize}
+
+Sus principales desventajas son:
+
+\begin{itemize}
+    \item No garantiza encontrar la solución óptima ni permite certificar optimalidad.
+    \item Su desempeño es sensible a la calibración de la temperatura inicial, la temperatura mínima y el factor de enfriamiento.
+    \item Un enfriamiento demasiado rápido puede conducir a un óptimo local de baja calidad; un enfriamiento demasiado lento puede consumir un tiempo excesivo.
+    \item Mantiene una sola solución, por lo que no aprovecha la diversidad de una población.
+    \item La calidad de la solución depende del vecindario elegido y de la representación utilizada.
+\end{itemize}
+
+\subsection{Razón de la elección}
+
+Se eligió el recocido simulado por tres razones principales. Primero, el problema estudiado es de naturaleza combinatoria y el recocido simulado ha demostrado ser eficaz en problemas de programación de la producción \parencite{pinedo2016}. Segundo, el algoritmo es fácil de explicar, implementar y reproducir, lo que facilita la entrega y la presentación del trabajo. Tercero, el grupo ya contaba con una implementación base en Rust, lo que permitió concentrar el esfuerzo en la representación de soluciones, la decodificación y la experimentación, en lugar de partir desde cero.
+
+Además, el recocido simulado ofrece un buen equilibrio entre calidad y costo computacional para las tres instancias propuestas. Como se muestra en el Capítulo~\ref{ch:resultados}, con un presupuesto de aproximadamente 27.625 iteraciones por ejecución se alcanzó el óptimo en las tres instancias, lo que confirma que la elección fue adecuada para el alcance del trabajo.

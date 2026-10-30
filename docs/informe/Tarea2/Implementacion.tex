@@ -1,0 +1,193 @@
+\chapter{Implementación}
+\label{ch:implementacion}
+
+\section{Arquitectura del software}
+
+La implementación se desarrolló en Rust, edición 2024, y se organizó en tres módulos principales:
+\texttt{domain}, \texttt{solver} y \texttt{ui}.
+El módulo \texttt{domain} contiene las estructuras que representan la instancia y las soluciones:
+\texttt{Jsp}, \texttt{Job}, \texttt{Operation}, \texttt{Schedule} y \texttt{ScheduleItem}.
+El módulo \texttt{solver} define los \emph{traits} \texttt{Solver} y \texttt{SolutionBuilder}, las condiciones de parada y las estrategias de resolución. El módulo \texttt{ui} implementa la interfaz de línea de comandos, la barra de progreso y la selección de estrategia.
+
+\begin{verbatim}
+src/
+|-- domain/
+|   |-- jsp.rs
+|   |-- job.rs
+|   |-- operation.rs
+|   `-- solution/
+|       |-- schedule.rs
+|       `-- schedule_item.rs
+|-- solver/
+|   |-- solution/
+|   |   |-- solution_builder.rs
+|   |   |-- solver.rs
+|   |   `-- strategies/
+|   |       |-- simulated_annealing.rs
+|   |       |-- local_search.rs
+|   |       |-- random.rs
+|   |       |-- swap.rs
+|   |       `-- bruteforce.rs
+|   `-- stop/
+|       |-- cancel.rs
+|       |-- timeout.rs
+|       `-- stop_handle.rs
+`-- ui/
+    |-- cli.rs
+    |-- progress.rs
+    `-- solver_data.rs
+\end{verbatim}
+
+La interfaz de línea de comandos (\gls{cli}) se implementó con la biblioteca \texttt{clap}. El programa recibe la ruta de la instancia, un tiempo límite opcional y el subcomando que selecciona la estrategia. Para el recocido simulado, los parámetros se ingresan mediante opciones con valores por defecto:
+\begin{verbatim}
+./target/release/jsp -f data/facil.txt simulated-annealing
+./target/release/jsp -f data/medio.txt simulated-annealing \
+    -i 1000.0 -m 0.001 -a 0.9995
+\end{verbatim}
+
+El binario \texttt{benchmark} ejecuta automáticamente diez repeticiones por instancia, extrae el makespan desde la salida de la \gls{cli} y calcula la media y la desviación estándar muestral. De esta forma, los resultados del informe pueden reproducirse con un solo comando.
+
+El código fue desarrollado íntegramente por los integrantes del grupo. La única referencia externa es la descripción original del recocido simulado \parencite{kirkpatrick1983}, citada en el Capítulo~\ref{ch:descripcion}.
+
+\section{Representación de soluciones}
+
+Una solución se representa mediante un vector de identificadores de trabajos, \(x = (x_1,\ldots,x_N)\), donde \(N=\sum_{i=1}^{n} m_i\) es el número total de operaciones. Cada trabajo \(i\) aparece exactamente \(m_i\) veces en el vector. Por ejemplo, si una instancia tiene tres trabajos con tres operaciones cada uno, una solución puede ser
+\[
+    x = (2,1,3,1,2,3,1,2,3).
+\]
+La \(k\)-ésima aparición del trabajo \(i\) en la secuencia indica que debe ejecutarse la \(k\)-ésima operación de ese trabajo. Esta representación tiene dos ventajas importantes: siempre conserva la multiplicidad de operaciones y permite decodificar una solución factible sin necesidad de aplicar reparaciones.
+
+\section{Decodificación y evaluación}
+
+La función de decodificación recorre la secuencia de izquierda a derecha y mantiene dos arreglos: el instante de término de cada trabajo y el instante de liberación de cada máquina. Para cada identificador de trabajo \(i\) se toma su siguiente operación pendiente \(O_{ij}\), se calcula
+\[
+    s_{ij} = \max\left(\text{término del trabajo } i,\ \text{liberación de la máquina } m_{ij}\right),
+\]
+y se actualizan ambos instantes con \(s_{ij}+p_{ij}\). Al finalizar el recorrido, el makespan es el máximo de los instantes de término de los trabajos. El costo de una evaluación es \(O(N)\), por lo que el algoritmo puede realizar decenas de miles de evaluaciones en tiempos muy reducidos.
+
+El decodificador se implementó en el rasgo \texttt{SolutionBuilder}, con métodos separados para evaluar el makespan y para construir la programación completa. El primero retorna únicamente el valor de la función objetivo; el segundo construye la lista de \texttt{ScheduleItem} con job, operación, máquina, inicio, término y duración, necesaria para mostrar la programación final.
+
+Como validación del decodificador, se ejecutó la estrategia de fuerza bruta sobre la instancia mínima de \(3\times3\). El resultado fue un makespan de 30, que coincide con el óptimo de esa instancia y con el ejemplo documentado en el repositorio. Esta prueba confirma que la lógica de precedencias y de capacidad de las máquinas es correcta.
+
+\section{Generación de la solución inicial}
+
+La solución inicial se genera mediante una permutación aleatoria del vector base que contiene cada trabajo repetido según su número de operaciones. Para ello se utiliza el generador de números aleatorios de la biblioteca \texttt{rand}. Cada ejecución parte de una solución distinta, lo que permite medir la variabilidad del algoritmo.
+
+\section{Vecindario}
+
+El operador de vecindario selecciona aleatoriamente dos posiciones \(i\) y \(j\) de la secuencia, con la condición de que \(x_i \neq x_j\), y las intercambia. La condición evita intercambios que no modifican la solución. Este movimiento se conoce como \emph{swap} y preserva la multiplicidad de cada trabajo, por lo que el vecino siempre es una solución factible. El vecindario completo de una solución está formado por todos los intercambios posibles entre posiciones que contienen trabajos distintos.
+
+\section{Criterio de aceptación}
+
+Sea \(x\) la solución actual, \(x'\) un vecino generado por el operador de swap y \(\Delta = f(x') - f(x)\). Si \(\Delta < 0\), el vecino mejora la solución y se acepta siempre. Si \(\Delta \ge 0\), se acepta con probabilidad \(e^{-\Delta/T}\), donde \(T\) es la temperatura actual. Este criterio permite que el algoritmo acepte empeoramientos al inicio de la búsqueda y que los rechace con mayor frecuencia a medida que la temperatura disminuye. La mejor solución encontrada se almacena por separado, de modo que un empeoramiento nunca afecta el resultado final.
+
+\section{Esquema de enfriamiento}
+
+Se utilizó un enfriamiento geométrico:
+\[
+    T_{k+1} = \alpha T_k,
+\]
+con \(T_0 = 1000\), \(T_{\min}=0.001\) y \(\alpha=0.9995\). El número de iteraciones hasta alcanzar la temperatura mínima es
+\[
+    k_{\max} = \left\lceil \frac{\ln(T_{\min}/T_0)}{\ln \alpha} \right\rceil
+    = \left\lceil \frac{\ln(10^{-6})}{\ln(0.9995)} \right\rceil
+    \approx 27.625.
+\]
+En cada iteración se evalúa un vecino, por lo que una ejecución realiza aproximadamente 27.626 evaluaciones de la función objetivo, incluida la evaluación de la solución inicial. Este presupuesto es fijo e independiente de la instancia, lo que permite comparar las tres instancias bajo las mismas condiciones.
+
+\section{Criterios de parada}
+
+El algoritmo se detiene cuando la temperatura alcanza \(T_{\min}\). Adicionalmente, la implementación admite dos criterios de parada opcionales: un tiempo límite especificado con la opción \texttt{--timeout} y la interrupción manual mediante \texttt{Ctrl+C}. Las condiciones de parada se gestionan a través de \texttt{StopHandle}, que evalúa todas las condiciones activas y detiene la búsqueda cuando al menos una de ellas se cumple. Cuando esto ocurre, se retorna la mejor solución encontrada hasta ese momento.
+
+\section{Pseudocódigo}
+
+El Algoritmo~\ref{alg:sa} resume el funcionamiento del recocido simulado implementado. La decodificación de una secuencia se denota mediante la función \textsc{Decodificar}, que retorna el makespan correspondiente.
+
+\begin{algorithm}[htbp]
+\caption{Recocido simulado para el JSP}
+\label{alg:sa}
+\begin{algorithmic}[1]
+\Require Instancia del \gls{jsp}, \(T_0\), \(T_{\min}\), \(\alpha\)
+\Ensure Mejor secuencia encontrada \(x^{*}\)
+\State Generar una permutación aleatoria \(x\) del vector base de trabajos
+\State \(f(x) \gets \textsc{Decodificar}(x)\)
+\State \(x^{*} \gets x\), \(f^{*} \gets f(x)\)
+\State \(T \gets T_0\)
+\While{\(T > T_{\min}\) y no se cumpla un criterio de parada}
+    \State Elegir dos posiciones aleatorias \(i,j\) con \(x_i \neq x_j\)
+    \State \(x' \gets x\) con las posiciones \(i\) y \(j\) intercambiadas
+    \State \(f(x') \gets \textsc{Decodificar}(x')\)
+    \State \(\Delta \gets f(x') - f(x)\)
+    \If{\(\Delta < 0\) \textbf{o} \(\text{aleatorio}(0,1) < e^{-\Delta/T}\)}
+        \State \(x \gets x'\)
+        \If{\(f(x) < f^{*}\)}
+            \State \(x^{*} \gets x\)
+            \State \(f^{*} \gets f(x)\)
+        \EndIf
+    \EndIf
+    \State \(T \gets \alpha T\)
+\EndWhile
+\State \Return \(x^{*}\)
+\end{algorithmic}
+\end{algorithm}
+
+\section{Diagrama de flujo}
+
+La Figura~\ref{fig:flujo_sa} reserva el espacio para el diagrama de flujo del algoritmo. El diagrama se incorporará en la versión final del informe.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=0.85\textwidth]{Tarea2/imagenes/diagrama_flujo.pdf}
+\fbox{\parbox[c][6cm][c]{0.82\textwidth}{
+\centering
+\textit{Espacio reservado para el diagrama de flujo del recocido simulado.\\
+Reemplazar este recuadro por la figura definitiva.}
+}}
+\caption{Diagrama de flujo del recocido simulado implementado.}
+\label{fig:flujo_sa}
+\end{figure}
+
+\section{Parámetros y presupuesto computacional}
+
+La Tabla~\ref{tab:parametros} resume los parámetros utilizados en todos los experimentos. No se realizó ajuste específico por instancia: las tres instancias se resolvieron con el mismo conjunto de parámetros, lo que permite comparar el comportamiento del algoritmo bajo condiciones homogéneas.
+
+\begin{table}[htbp]
+\centering
+\caption{Parámetros del recocido simulado utilizado en los experimentos.}
+\label{tab:parametros}
+\begin{tabular}{llr}
+\toprule
+Parámetro & Símbolo & Valor \\
+\midrule
+Temperatura inicial & \(T_0\) & 1000 \\
+Temperatura mínima & \(T_{\min}\) & 0,001 \\
+Factor de enfriamiento & \(\alpha\) & 0,9995 \\
+Iteraciones por ejecución & \(k_{\max}\) & 27.625 \\
+Evaluaciones por ejecución & -- & 27.626 \\
+Ejecuciones por instancia & -- & 10 \\
+Tiempo límite & -- & Desactivado \\
+Semilla & -- & Aleatoria del sistema \\
+Vecindario & -- & Swap de dos posiciones \\
+Criterio de aceptación & -- & Metropolis \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El presupuesto total de la experimentación fue de \(3 \times 10 \times 27.626 = 828.780\) evaluaciones de la función objetivo. Los tiempos de ejecución medidos en el equipo de pruebas fueron aproximadamente 0,007 s para la instancia fácil, 0,011 s para la instancia media y 0,028 s para la instancia difícil, incluyendo el tiempo de arranque del proceso. Estos valores corresponden a un procesador Intel Core i3-1215U con 8 GB de memoria RAM y Rust 1.96.0 en Linux.
+
+\clearpage
+\section{Reproducibilidad}
+
+El repositorio incluye un archivo \texttt{README.txt} con las instrucciones de compilación y ejecución, además de la identificación de los integrantes del grupo. Para compilar y ejecutar el algoritmo se utilizan los siguientes comandos:
+\begin{verbatim}
+cargo build --release
+./target/release/jsp -f data/facil.txt simulated-annealing
+./target/release/jsp -f data/medio.txt simulated-annealing
+./target/release/jsp -f data/dificil.txt simulated-annealing
+\end{verbatim}
+
+Para reproducir la tabla completa de diez ejecuciones por instancia se ejecuta:
+\begin{verbatim}
+./target/release/benchmark
+\end{verbatim}
+El binario \texttt{benchmark} recorre las instancias \texttt{facil.txt}, \texttt{medio.txt} y \texttt{dificil.txt}, ejecuta el recocido simulado diez veces por instancia y reporta el mejor valor, el peor valor, la media y la desviación estándar.

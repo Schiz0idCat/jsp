@@ -1,0 +1,76 @@
+\documentclass[12pt, letterpaper]{report} % Usa la clase report para documentos divididos en capítulos
+
+%Paquete que da el formato al documento
+\usepackage{pucv_inf_2024}
+
+% Utilidades de composición
+\usepackage{booktabs}
+\usepackage{float}
+
+% Nombres en español de los elementos flotantes
+\renewcommand{\contentsname}{\uppercase{Índice General}}
+\renewcommand{\listfigurename}{\uppercase{Lista de Figuras}}
+\renewcommand{\listtablename}{\uppercase{Lista de Tablas}}
+\renewcommand{\nomname}{\uppercase{Lista de Símbolos}}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
+\floatname{algorithm}{Algoritmo}
+\renewcommand{\appendixname}{Anexo}
+
+% Archivo de Referencias
+\addbibresource{referencias.bib}
+
+% Glosario
+\loadglsentries{glosario}
+\makeglossaries
+
+\begin{document}
+
+%% PORTADA
+\include{Portadas/portada_principal.tex}
+
+%% RESUMEN/ABSTRACT
+\include{Resumen/resumen.tex}
+
+%% ÍNDICES Y LISTAS
+\newpage\addcontentsline{toc}{chapter}{Índice General\vspace{-0.5cm}}
+\tableofcontents
+
+\newpage\addcontentsline{toc}{chapter}{Lista de Figuras\vspace{-0.5cm}}
+\listoffigures
+
+\newpage\addcontentsline{toc}{chapter}{Lista de Tablas\vspace{-0.5cm}}
+\listoftables
+
+\newpage\addcontentsline{toc}{chapter}{Lista de Algoritmos\vspace{-0.5cm}}
+\listofalgorithms
+
+% Lista de Símbolos
+\input{Simbolos/simbolos.tex}
+\newpage\addcontentsline{toc}{chapter}{Lista de Símbolos\vspace{-0.5cm}}
+\printnomenclature
+
+% Glosario
+\glsaddall
+\printglossary[type=\acronymtype]
+\addcontentsline{toc}{chapter}{Glosario}
+
+\newpage
+\pagenumbering{arabic}
+
+%% CONTENIDO PRINCIPAL
+\include{Tarea2/Introduccion}
+\include{Tarea2/Descripcion_general}
+\include{Tarea2/Implementacion}
+\include{Tarea2/Mejor_solucion}
+\include{Tarea2/Resultados}
+\include{Tarea2/Conclusiones}
+
+%% REFERENCIAS
+\include{Tarea2/Referencias}
+
+%% ANEXO
+\appendix
+\include{Tarea2/Anexo}
+
+\end{document}

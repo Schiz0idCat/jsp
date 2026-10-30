@@ -11,3 +11,27 @@ wheels/
 
 # rust
 target/
+
+# latex
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.loa
+*.out
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.glo
+*.gls
+*.glg
+*.nlo
+*.nls
+*.ilg
+*.ist
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+build/
