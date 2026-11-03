@@ -36,6 +36,8 @@ impl SolverData {
             stop = stop.with_condition(TimeoutCondition::new(time));
         }
 
+        // Esto rompe el principio abierto y cerrado.
+        // TODO: hacer que la función respete el principio abierto y cerrado.
         let solver: Box<dyn Solver> = match strategy {
             Strategy::Bruteforce => Box::new(BruteForce::new()),
             Strategy::Random { samples } => Box::new(Random::new(samples)),

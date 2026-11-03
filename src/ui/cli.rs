@@ -23,10 +23,12 @@ pub struct Cli {
 
 // Getters
 impl Cli {
+    /// Retorna el path al archivo de la instancia.
     pub fn filepath(&self) -> &Path {
         &self.filepath
     }
 
+    /// Retorna la duración máxima de ejecución, si la hay.
     pub fn timeout(&self) -> Option<Duration> {
         match self.timeout {
             Some(0) | None => None,
@@ -34,6 +36,7 @@ impl Cli {
         }
     }
 
+    /// Retorna la estrategia para resolver la instancia.
     pub fn strategy(&self) -> Strategy {
         self.strategy
     }

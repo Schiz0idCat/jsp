@@ -1,5 +1,6 @@
 use clap::Subcommand;
 
+/// Acceso rápido contiene todas las estrategias y los argumentos que pueden recibir.
 #[derive(Subcommand, Debug, Clone, Copy)]
 pub enum Strategy {
     Bruteforce,

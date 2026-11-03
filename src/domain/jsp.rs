@@ -20,6 +20,7 @@ pub struct Jsp {
 
 // Inicializadores
 impl Jsp {
+    /// Inicializa con argumentos.
     pub fn new(n_jobs: usize, n_machines: usize, jobs: Vec<Job>) -> Self {
         Self {
             n_jobs,
@@ -28,6 +29,7 @@ impl Jsp {
         }
     }
 
+    /// Inicializa desde un archivo.
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, JspFileError> {
         let content = fs::read_to_string(path)?;
         let jsp: Jsp = content.parse()?;
@@ -37,14 +39,17 @@ impl Jsp {
 
 // Getters
 impl Jsp {
+    /// Retorna la cantidad de trabajos.
     pub fn n_jobs(&self) -> usize {
         self.n_jobs
     }
 
+    /// Retorna la cantidad de máquinas.
     pub fn n_machines(&self) -> usize {
         self.n_machines
     }
 
+    /// Retorna el arreglo de trabajos.
     pub fn jobs(&self) -> &[Job] {
         &self.jobs
     }
@@ -99,6 +104,7 @@ impl Display for Jsp {
     }
 }
 
+// esto activa el método .parse()
 impl FromStr for Jsp {
     type Err = JspParseError;
 

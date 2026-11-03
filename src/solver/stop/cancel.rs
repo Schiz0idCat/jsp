@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use super::StopCondition;
 
 /// Condición de parada basada en la instrucción de cancelación por parte de un hilo externo
-/// (usada para gestionar la interrupción de usuario 'ctrl + c').
+// (usada para gestionar la interrupción de usuario 'ctrl + c').
 #[derive(Clone)]
 pub struct CancelCondition {
     token: Arc<AtomicBool>,
