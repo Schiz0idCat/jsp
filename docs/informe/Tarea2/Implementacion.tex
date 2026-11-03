@@ -53,7 +53,6 @@ los parámetros se ingresan mediante opciones con valores por defecto:
 
 El binario \texttt{benchmark} ejecuta automáticamente diez repeticiones por instancia,
 extrae el makespan desde la salida de la \gls{cli} y calcula la media y la desviación estándar muestral. 
-De esta forma, los resultados del informe pueden reproducirse con un solo comando.
 
 El código fue desarrollado íntegramente por los integrantes del grupo.
 La única referencia externa es la descripción original del \emph{Simulated Annealing} \parencite{kirkpatrick1983},
@@ -70,9 +69,6 @@ Por ejemplo, si una instancia tiene tres trabajos con tres operaciones cada uno,
 \]
 La \(k\)-ésima aparición del trabajo \(i\) en la secuencia indica que
 debe ejecutarse la \(k\)-ésima operación de ese trabajo.
-Esta representación tiene dos ventajas importantes:
-siempre conserva la multiplicidad de operaciones y permite decodificar
-una solución factible sin necesidad de aplicar reparaciones.
 
 \section{Decodificación y evaluación}
 
@@ -84,20 +80,13 @@ Para cada identificador de trabajo \(i\) se toma su siguiente operación pendien
 \]
 y se actualizan ambos instantes con \(s_{ij}+p_{ij}\).
 Al finalizar el recorrido, el makespan es el máximo de los instantes de término de los trabajos.
-El costo de una evaluación es \(O(N)\),
-por lo que el algoritmo puede realizar decenas de miles de evaluaciones en tiempos muy reducidos.
+Teniendo un coste de evaluación de \(O(N)\),
 
-El decodificador se implementó en el rasgo \texttt{SolutionBuilder},
-con métodos separados para evaluar el makespan y para construir la programación completa.
+El decodificador se implementó en el \emph{trait} \texttt{SolutionBuilder},
+con métodos separados para evaluar el makespan y para construir la programación completa de las máquinas.
 El primero retorna únicamente el valor de la función objetivo;
 el segundo construye la lista de \texttt{ScheduleItem} con
 job, operación, máquina, inicio, término y duración, necesaria para mostrar la programación final.
-
-Como validación del decodificador,
-se ejecutó la estrategia de fuerza bruta sobre la instancia mínima de \(3\times3\).
-El resultado fue un makespan de 30,
-que coincide con el óptimo de esa instancia y con el ejemplo documentado en el repositorio.
-Esta prueba confirma que la lógica de precedencias y de capacidad de las máquinas es correcta.
 
 \section{Generación de la solución inicial}
 
@@ -109,8 +98,8 @@ Cada ejecución parte de una solución distinta, lo que permite medir la variabi
 \section{Vecindario}
 
 El operador de vecindario selecciona aleatoriamente dos posiciones \(i\) y \(j\) de la secuencia,
-con la condición de que \(x_i \neq x_j\), y las intercambia.
-La condición evita intercambios que no modifican la solución.
+con la condición \(x_i \neq x_j\), y las intercambia
+(Esto evita intercambios que no modifican la solución).
 Este movimiento se conoce como \emph{swap} y preserva la multiplicidad de cada trabajo,
 por lo que el vecino siempre es una solución factible.
 El vecindario completo de una solución está formado por todos los
@@ -211,8 +200,7 @@ Reemplazar este recuadro por la figura definitiva.}
 
 La Tabla~\ref{tab:parametros} resume los parámetros utilizados en todos los experimentos.
 No se realizó ajuste específico por instancia:
-las tres instancias se resolvieron con el mismo conjunto de parámetros,
-lo que permite comparar el comportamiento del algoritmo bajo condiciones homogéneas.
+las tres instancias se resolvieron con el mismo conjunto de parámetros.
 
 \begin{table}[htbp]
 \centering
