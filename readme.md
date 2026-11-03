@@ -15,7 +15,7 @@ cargo build --release   # Compilación
 ### Guía de uso
 ```sh
 ❯ ./target/release/jsp --help
-Job Shop Scheduling Problem (JSP) Solver
+Job Shop Problem (JSP) Solver
 
 Usage: jsp [OPTIONS] --file <FILE> <COMMAND>
 

@@ -6,7 +6,7 @@ use std::time::Duration;
 
 /// Extrae los argumentos de la CLI.
 #[derive(Parser, Debug)]
-#[command(about = "Job Shop Scheduling Problem (JSP) Solver", long_about = None)]
+#[command(about = "Job Shop Problem (JSP) Solver", long_about = None)]
 pub struct Cli {
     /// Ruta al archivo con el problema.
     #[arg(short, long = "file", value_name = "FILE")]

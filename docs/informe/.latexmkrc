@@ -11,4 +11,3 @@ sub makeindex_nomencl {
         or die "makeindex (nomencl) failed";
     return 0;
 }
-$out_dir = 'build';
