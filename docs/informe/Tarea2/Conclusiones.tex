@@ -1,7 +1,7 @@
 \chapter{Conclusiones}
 \label{ch:conclusiones}
 
-En este trabajo se implementó y evaluó una metaheurística de \emph{Simulated Annealing}
+En este trabajo se implementó y evaluó la metaheurística de \emph{Simulated Annealing}
 para resolver Job Shop Problem.
 El algoritmo se desarrolló íntegramente en Rust,
 con una representación de soluciones basada en secuencias de trabajos y un decodificador que
@@ -27,20 +27,13 @@ criterio de aceptación son fundamentales para equilibrar exploración y explota
 y que la experimentación sistemática con varias ejecuciones es necesaria para medir la variabilidad del método.
 
 Desde el punto de vista de la ingeniería de software,
-el trabajo permitió aplicar conceptos de diseño modular, polimorfismo y separación de responsabilidades en Rust,
+el trabajo permitió aplicar conceptos de diseño modular, polimorfismo y separación de responsabilidades,
 además de automatizar la experimentación mediante un binario de benchmark.
 
 \section{¿Cuál fue el desafío más grande de implementar la metaheurística?}
 
-El desafío más grande fue diseñar una representación que preservara la factibilidad de las soluciones y,
-al mismo tiempo, permitiera evaluar el makespan de forma eficiente.
-La secuencia de trabajos con repeticiones debe decodificarse respetando tanto el orden de
-las operaciones de cada trabajo como la disponibilidad de las máquinas;
-cualquier error en esta lógica produce soluciones infactibles o valores de makespan incorrectos.
-La validación con la instancia mínima y con la
-estrategia de fuerza bruta fue clave para detectar y corregir este tipo de errores.
-
-Otro desafío importante fue la calibración de los parámetros.
+El desafío más grande fue lograr comprender la metaheurística seleccionada al nivel de implementarla en código.
+Posteriormente, la calibración de los parámetros fue otro desafio.
 Un enfriamiento demasiado rápido reduce la exploración y puede estancar el algoritmo en un óptimo local;
 un enfriamiento demasiado lento incrementa innecesariamente el tiempo de ejecución.
 Encontrar un equilibrio adecuado requirió probar distintas configuraciones y
@@ -57,11 +50,6 @@ En tercer lugar, se podría combinar el \emph{Simulated Annealing} con una búsq
 o ejecutar varias réplicas en paralelo y quedarse con la mejor solución.
 Finalmente, se podrían ajustar los parámetros por instancia mediante un
 estudio experimental más amplio o utilizar un enfoque de \emph{tuning} automático.
-
-Otra mejora posible es incorporar información específica del problema,
-como cotas inferiores por carga de máquina,
-para guiar la búsqueda o para detener el algoritmo cuando se alcanza una solución que coincide con la cota.
-Esto permitiría ahorrar evaluaciones en instancias donde el óptimo está determinado por la máquina más congestionada.
 
 \section{¿Cree que este tipo de técnicas puede ser aplicada en la realidad chilena?}
 
