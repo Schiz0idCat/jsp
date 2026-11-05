@@ -43,7 +43,7 @@ src/
 La interfaz de línea de comandos (\gls{cli}) se implementó con la biblioteca \texttt{clap}.
 El programa recibe la ruta de la instancia, un tiempo límite opcional y
 el subcomando que selecciona la estrategia. Para el \emph{Simulated Annealing},
-los parámetros se ingresan mediante opciones con valores por defecto:
+los parámetros se ingresan mediante opciones con valores por defecto, que además pueden ser especificadas:
 
 \begin{verbatim}
 ./target/release/jsp -f data/facil.txt simulated-annealing
@@ -80,7 +80,6 @@ Para cada identificador de trabajo \(i\) se toma su siguiente operación pendien
 \]
 y se actualizan ambos instantes con \(s_{ij}+p_{ij}\).
 Al finalizar el recorrido, el makespan es el máximo de los instantes de término de los trabajos.
-Teniendo un coste de evaluación de \(O(N)\),
 
 El decodificador se implementó en el \emph{trait} \texttt{SolutionBuilder},
 con métodos separados para evaluar el makespan y para construir la programación completa de las máquinas.

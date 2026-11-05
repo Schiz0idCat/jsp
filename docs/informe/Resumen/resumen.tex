@@ -1,7 +1,7 @@
 \chapter*{Resumen}
 \addcontentsline{toc}{chapter}{Resumen/Abstract\vspace{-0.5cm}}
 
-El presente informe describe la implementación y evaluación de una metaheurística de \emph{Simulated Annealing}
+El presente informe describe la implementación y evaluación de la metaheurística \emph{Simulated Annealing}
 para resolver el problema de programación de talleres de trabajo
 (\emph{Job Shop Problem}, JSP).
 El objetivo es minimizar el tiempo total de término de todos los trabajos,
@@ -17,7 +17,7 @@ con un esquema de enfriamiento geométrico.
 La implementación se realizó en Rust y se evaluó sobre tres instancias de complejidad creciente:
 \(6\times6\), \(15\times10\) y \(50\times10\).
 Para cada instancia se ejecutó el algoritmo diez veces con los mismos parámetros.
-La mejor solución encontrada alcanzó el óptimo en las tres instancias: 55, 1032 y 2794 unidades de tiempo, respectivamente.
+La mejor solución encontrada alcanzó el óptimo en las tres instancias: 55, 1032 y 2794, respectivamente.
 La instancia de tamaño medio presentó la mayor variabilidad,
 con una media de 1042{,}10 y una desviación estándar de 14{,}96,
 mientras que las instancias fácil y difícil alcanzaron el óptimo en las diez ejecuciones.
