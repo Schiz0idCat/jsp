@@ -19,10 +19,6 @@
 % Archivo de Referencias
 \addbibresource{referencias.bib}
 
-% Glosario
-\loadglsentries{glosario}
-\makeglossaries
-
 \begin{document}
 
 %% PORTADA
@@ -48,11 +44,6 @@
 \input{Simbolos/simbolos.tex}
 \newpage\addcontentsline{toc}{chapter}{Lista de Símbolos\vspace{-0.5cm}}
 \printnomenclature
-
-% Glosario
-\glsaddall
-\printglossary[type=\acronymtype]
-\addcontentsline{toc}{chapter}{Glosario}
 
 \newpage
 \pagenumbering{arabic}

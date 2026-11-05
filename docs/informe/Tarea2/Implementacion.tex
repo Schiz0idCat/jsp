@@ -40,7 +40,7 @@ src/
     `-- solver_data.rs
 \end{verbatim}
 
-La interfaz de línea de comandos (\gls{cli}) se implementó con la biblioteca \texttt{clap}.
+La interfaz de línea de comandos (CLI) se implementó con la biblioteca \texttt{clap}.
 El programa recibe la ruta de la instancia, un tiempo límite opcional y
 el subcomando que selecciona la estrategia. Para el \emph{Simulated Annealing},
 los parámetros se ingresan mediante opciones con valores por defecto, que además pueden ser especificadas:
@@ -52,7 +52,7 @@ los parámetros se ingresan mediante opciones con valores por defecto, que adem�
 \end{verbatim}
 
 El binario \texttt{benchmark} ejecuta automáticamente diez repeticiones por instancia,
-extrae el makespan desde la salida de la \gls{cli} y calcula la media y la desviación estándar muestral. 
+extrae el makespan desde la salida de la CLI y calcula la media y la desviación estándar muestral. 
 
 El código fue desarrollado íntegramente por los integrantes del grupo.
 La única referencia externa es la descripción original del \emph{Simulated Annealing} \parencite{kirkpatrick1983},
@@ -154,7 +154,7 @@ que retorna el makespan correspondiente.
 \caption{\emph{Simulated Annealing} para el JSP}
 \label{alg:sa}
 \begin{algorithmic}[1]
-\Require Instancia del \gls{jsp}, \(T_0\), \(T_{\min}\), \(\alpha\)
+\Require Instancia del JSP, \(T_0\), \(T_{\min}\), \(\alpha\)
 \Ensure Mejor secuencia encontrada \(x^{*}\)
 \State Generar una permutación aleatoria \(x\) del vector base de trabajos
 \State \(f(x) \gets \textsc{Decodificar}(x)\)
@@ -203,8 +203,6 @@ las tres instancias se resolvieron con el mismo conjunto de parámetros.
 
 \begin{table}[htbp]
 \centering
-\caption{Parámetros del \emph{Simulated Annealing} utilizado en los experimentos.}
-\label{tab:parametros}
 \begin{tabular}{llr}
 \toprule
 Parámetro & Símbolo & Valor \\
@@ -221,13 +219,17 @@ Vecindario & -- & Swap de dos posiciones \\
 Criterio de aceptación & -- & Metropolis \\
 \bottomrule
 \end{tabular}
+\caption{Parámetros del \emph{Simulated Annealing} utilizado en los experimentos.}
+\label{tab:parametros}
 \end{table}
 
 El presupuesto total de la experimentación fue de \(3 \times 10 \times 27.626 = 828.780\)
 evaluaciones de la función objetivo.
 Los tiempos de ejecución medidos en el equipo de pruebas fueron aproximadamente 0,007 s para la instancia fácil,
 0,011 s para la instancia media y 0,028 s para la instancia difícil, incluyendo el tiempo de arranque del proceso.
-Estos valores corresponden a un procesador Intel Core i3-1215U con 8 GB de memoria RAM y Rust 1.96.0 en Linux.
+Estos valores corresponden a un procesador Intel Core i3-1215U con 8 GB de memoria RAM,
+ejecutados sobre Arch Linux con kernel 7.2.14-arch1-1 y arquitectura x86\_64,
+utilizando Rust 1.99.1 (Cargo 1.99.1).
 
 \clearpage
 \section{Reproducibilidad}

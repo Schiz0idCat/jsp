@@ -9,9 +9,9 @@ utilizando los parámetros de la Tabla~\ref{tab:parametros} y sin tiempo límite
 Cada ejecución parte de una permutación inicial aleatoria distinta,
 por lo que los resultados reflejan la variabilidad propia del algoritmo.
 
-El equipo de pruebas fue un computador con procesador Intel Core i3-1215U,
-8 GB de memoria RAM y sistema operativo Linux.
-La implementación utilizó Rust 1.96.0 y las bibliotecas
+El equipo de pruebas fue un computador con procesador Intel Core i3-1215U y 8 GB de memoria RAM,
+con sistema operativo Arch Linux, kernel 7.2.14-arch1-1 y arquitectura x86\_64.
+La implementación utilizó Rust 1.99.1 (Cargo 1.99.1) y las bibliotecas
 \texttt{clap}, \texttt{rand}, \texttt{indicatif}, \texttt{ctrlc} y \texttt{thiserror}.
 El binario \texttt{benchmark} automatizó las treinta ejecuciones y el cálculo de los estadísticos.
 
@@ -22,8 +22,6 @@ para las tres instancias, junto con la media y la desviación estándar muestral
 
 \begin{table}[htbp]
 \centering
-\caption{Makespan obtenido en diez ejecuciones independientes por instancia.}
-\label{tab:ejecuciones}
 \begin{tabular}{crrr}
 \toprule
 Ejecución & Fácil (\(6\times6\)) & Medio (\(15\times10\)) & Difícil (\(50\times10\)) \\
@@ -43,6 +41,8 @@ Media & 55,00 & 1042,10 & 2794,00 \\
 Desviación estándar & 0,00 & 14,96 & 0,00 \\
 \bottomrule
 \end{tabular}
+\caption{Makespan obtenido en diez ejecuciones independientes por instancia.}
+\label{tab:ejecuciones}
 \end{table}
 
 \section{Resumen estadístico}
@@ -52,8 +52,6 @@ La brecha media se calcula como la diferencia porcentual entre la media de las d
 
 \begin{table}[htbp]
 \centering
-\caption{Resumen estadístico de las diez ejecuciones por instancia.}
-\label{tab:resumen}
 \begin{tabular}{lrrrrrr}
 \toprule
 Instancia & Óptimo & Mejor & Peor & Media & Desv. est. & Brecha media \\
@@ -63,6 +61,8 @@ Medio   & 1032 & 1032 & 1077 & 1042,10 & 14,96 & 0,98\,\% \\
 Difícil & 2794 & 2794 & 2794 & 2794,00 & 0,00  & 0,00\,\% \\
 \bottomrule
 \end{tabular}
+\caption{Resumen estadístico de las diez ejecuciones por instancia.}
+\label{tab:resumen}
 \end{table}
 
 \section{Análisis de resultados}

@@ -5,13 +5,11 @@ Para cada instancia se registró la mejor solución encontrada entre las diez ej
 La Tabla~\ref{tab:mejor_solucion} presenta el makespan de la mejor solución,
 el valor óptimo de referencia y la brecha correspondiente.
 Los valores óptimos fueron verificados con un modelo de programación de
-restricciones resuelto con \gls{cpsat} de OR-Tools \parencite{ortools},
+restricciones resuelto con CP-SAT de OR-Tools \parencite{ortools},
 utilizado únicamente como referencia de evaluación y no como parte de la metaheurística implementada.
 
 \begin{table}[htbp]
 \centering
-\caption{Mejor solución encontrada para cada instancia.}
-\label{tab:mejor_solucion}
 \begin{tabular}{lrrrrr}
 \toprule
 Instancia & Tamaño & Mejor \(C_{\max}\) & Óptimo & Brecha & Ejecuciones óptimas \\
@@ -21,6 +19,8 @@ Medio   & \(15\times10\) & 1032 & 1032 & 0,00\,\% & 6/10 \\
 Difícil & \(50\times10\) & 2794 & 2794 & 0,00\,\% & 10/10 \\
 \bottomrule
 \end{tabular}
+\caption{Mejor solución encontrada para cada instancia.}
+\label{tab:mejor_solucion}
 \end{table}
 
 La mejor solución de la instancia fácil se obtuvo en las diez ejecuciones,
