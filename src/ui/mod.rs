@@ -2,6 +2,7 @@ mod cli;
 pub mod errors;
 mod progress;
 mod solver_data;
+mod solver_factory;
 mod strategy;
 
 pub use cli::Cli;

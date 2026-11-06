@@ -1,20 +1,22 @@
 //! Esta estrategia resuelve el taller 6
 
 use rand::prelude::IndexedRandom;
-use rand::rng;
 use rand::seq::SliceRandom;
 
 use crate::domain::{Jsp, solution::Schedule};
+use crate::solver::RandomSeed;
 use crate::solver::solution::{Solver, solution_builder::SolutionBuilder};
 use crate::solver::stop::StopHandle;
 
 // Estrategia que genera soluciones vecinas mediante intercambios.
-pub struct Swap;
+pub struct Swap {
+    seed: RandomSeed,
+}
 
 impl Swap {
     // Crea una nueva instancia de Swap.
-    pub fn new() -> Self {
-        Self
+    pub fn new(seed: RandomSeed) -> Self {
+        Self { seed }
     }
 
     // Intercambia dos posiciones sin modificar la solución original.
@@ -58,7 +60,7 @@ impl Solver for Swap {
         }
 
         // Mezcla los trabajos para generar una solución aleatoria.
-        let mut rng = rng();
+        let mut rng = self.seed.rng();
         solution.shuffle(&mut rng);
 
         // Inicia el control de detención.

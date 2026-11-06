@@ -1,12 +1,12 @@
 //! Esta estrategia resuelve el taller 7
 
-use rand::rng;
 use rand::seq::SliceRandom;
 
 use super::super::SolutionBuilder;
 use super::super::Solver;
 use crate::domain::Jsp;
 use crate::domain::solution::Schedule;
+use crate::solver::RandomSeed;
 use crate::solver::stop::StopHandle;
 
 /// Estrategia de [`Jsp`] resuelto mediante búsqueda local por primera mejora.
@@ -14,12 +14,13 @@ use crate::solver::stop::StopHandle;
 /// mediante intercambios (swap) hasta alcanzar un óptimo local.
 pub struct LocalSearch {
     samples: usize,
+    seed: RandomSeed,
 }
 
 impl LocalSearch {
     /// Inicializador lógico.
-    pub fn new(samples: usize) -> Self {
-        Self { samples }
+    pub fn new(samples: usize, seed: RandomSeed) -> Self {
+        Self { samples, seed }
     }
 
     /// Aplica búsqueda local completa con criterio de aceptación por primera mejora.
@@ -105,7 +106,7 @@ impl Solver for LocalSearch {
 
         let mut best_makespan = usize::MAX;
         let mut best_sequence: Option<Vec<usize>> = None;
-        let mut rng = rng();
+        let mut rng = self.seed.rng();
         let mut current_seq = base_sequence;
 
         stop.start();

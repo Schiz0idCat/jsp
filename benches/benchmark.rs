@@ -4,9 +4,11 @@ mod instance;
 use benchmark_result::BenchmarkResult;
 use instance::Instance;
 
+use jsp::solver::RandomSeed;
 use std::process::Command;
 
 const RUNS_PER_INSTANCE: usize = 10;
+const BASE_SEED: u64 = 2026;
 
 fn main() {
     let instances = [
@@ -17,9 +19,11 @@ fn main() {
 
     let binary_path = "./target/release/jsp";
 
-    println!("////////////////////////////////////////////////////");
-    println!("/////   INICIANDO EXPERIMENTACIÓN DE TAREA 2   /////");
-    println!("////////////////////////////////////////////////////\n");
+    println!(
+        "Semillas: {} a {}\n",
+        BASE_SEED,
+        BASE_SEED + RUNS_PER_INSTANCE as u64 - 1
+    );
 
     let mut results: Vec<BenchmarkResult> = Vec::new();
 
@@ -33,10 +37,14 @@ fn main() {
         let mut makespans: Vec<f64> = Vec::with_capacity(RUNS_PER_INSTANCE);
 
         for run in 1..=RUNS_PER_INSTANCE {
-            // Ejecuta la CLI
+            let seed = RandomSeed::from_u64(BASE_SEED + run as u64 - 1);
+
+            // Ejecuta la CLI con una semilla explícita.
             let output = Command::new(binary_path)
                 .arg("-f")
                 .arg(instance.path())
+                .arg("--seed")
+                .arg(seed.to_string())
                 .arg("simulated-annealing")
                 .output()
                 .expect("Error al ejecutar el binario de JSP");
@@ -48,9 +56,21 @@ fn main() {
 
             let stdout = String::from_utf8_lossy(&output.stdout);
 
+            // Verifica que la CLI haya usado la semilla solicitada.
+            if parse_seed(&stdout) != Some(seed.value()) {
+                eprintln!(
+                    "  Ejecución {:2}/10 -> La semilla impresa no coincide con {}",
+                    run, seed
+                );
+                break;
+            }
+
             // Extrae el makespan del output de la CLI
             if let Some(makespan) = parse_makespan(&stdout) {
-                println!("  Ejecución {:2}/10 -> Makespan: {}", run, makespan);
+                println!(
+                    "  Ejecución {:2}/10 -> Semilla: {} | Makespan: {}",
+                    run, seed, makespan
+                );
                 makespans.push(makespan);
             } else {
                 eprintln!("  Ejecución {:2}/10 -> No se pudo parsear el makespan", run);
@@ -68,6 +88,15 @@ fn main() {
             );
         }
     }
+}
+
+/// Extrae la semilla impresa por la CLI.
+fn parse_seed(output: &str) -> Option<u64> {
+    output.lines().find_map(|line| {
+        line.trim()
+            .strip_prefix("Semilla:")
+            .and_then(|value| value.trim().parse().ok())
+    })
 }
 
 /// Extrae el valor numérico del makespan a partir de la salida en consola.

@@ -8,11 +8,12 @@
 //! «Optimization by Simulated Annealing». Science (en inglés) 220 (4598): 671-680.
 
 use crate::domain::{Jsp, solution::Schedule};
+use crate::solver::RandomSeed;
 use crate::solver::solution::{Solver, solution_builder::SolutionBuilder};
 use crate::solver::stop::StopHandle;
 
+use rand::RngExt;
 use rand::seq::SliceRandom;
-use rand::{RngExt, rng};
 
 pub struct SimulatedAnnealing {
     /// Aleatoriedad. Dispocisión para aceptar soluciones peores.
@@ -23,14 +24,18 @@ pub struct SimulatedAnnealing {
 
     /// Tasa de enfriamiento.
     alpha: f64,
+
+    /// Semilla del generador aleatorio.
+    seed: RandomSeed,
 }
 
 impl SimulatedAnnealing {
-    pub fn new(t_initial: f64, t_min: f64, alpha: f64) -> Self {
+    pub fn new(t_initial: f64, t_min: f64, alpha: f64, seed: RandomSeed) -> Self {
         Self {
             t_initial,
             t_min,
             alpha,
+            seed,
         }
     }
 }
@@ -58,7 +63,7 @@ impl Solver for SimulatedAnnealing {
             .flat_map(|(idx, job)| std::iter::repeat_n(idx, job.operations().len()))
             .collect();
 
-        let mut rng = rng();
+        let mut rng = self.seed.rng();
         current_seq.shuffle(&mut rng);
 
         let mut current_makespan = self.evaluate_makespan(jsp, &current_seq, max_machine_id);

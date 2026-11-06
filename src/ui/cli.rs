@@ -1,3 +1,4 @@
+use crate::solver::RandomSeed;
 use crate::ui::Strategy;
 
 use clap::Parser;
@@ -15,6 +16,10 @@ pub struct Cli {
     /// Tiempo límite opcional.
     #[arg(short, long, value_name = "SECONDS")]
     timeout: Option<u64>,
+
+    /// Semilla aleatoria para reproducir la ejecución.
+    #[arg(long, value_name = "SEED", global = true)]
+    seed: Option<RandomSeed>,
 
     /// Subcomando para elegir la estrategia de solución.
     #[command(subcommand)]
@@ -34,6 +39,11 @@ impl Cli {
             Some(0) | None => None,
             Some(secs) => Some(Duration::from_secs(secs)),
         }
+    }
+
+    /// Retorna la semilla indicada por el usuario, si la hay.
+    pub fn seed(&self) -> Option<RandomSeed> {
+        self.seed
     }
 
     /// Retorna la estrategia para resolver la instancia.

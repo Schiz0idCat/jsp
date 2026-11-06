@@ -1,10 +1,9 @@
 use super::Strategy;
+use super::solver_factory;
 use crate::domain::Jsp;
 use crate::domain::solution::Schedule;
+use crate::solver::RandomSeed;
 use crate::solver::solution::Solver;
-use crate::solver::solution::strategies::{
-    BruteForce, LocalSearch, Random, SimulatedAnnealing, Swap,
-};
 use crate::solver::stop::{CancelCondition, StopHandle, TimeoutCondition};
 use crate::ui::errors::SolverError;
 
@@ -25,6 +24,7 @@ impl SolverData {
         filepath: &Path,
         timeout: Option<Duration>,
         strategy: Strategy,
+        seed: RandomSeed,
     ) -> Result<Self, SolverError> {
         let jsp = Jsp::from_file(filepath)?;
 
@@ -36,19 +36,7 @@ impl SolverData {
             stop = stop.with_condition(TimeoutCondition::new(time));
         }
 
-        // Esto rompe el principio abierto y cerrado.
-        // TODO: hacer que la función respete el principio abierto y cerrado.
-        let solver: Box<dyn Solver> = match strategy {
-            Strategy::Bruteforce => Box::new(BruteForce::new()),
-            Strategy::Random { samples } => Box::new(Random::new(samples)),
-            Strategy::LocalSearch { samples } => Box::new(LocalSearch::new(samples)),
-            Strategy::Swap => Box::new(Swap::new()),
-            Strategy::SimulatedAnnealing {
-                t_initial,
-                t_min,
-                alpha,
-            } => Box::new(SimulatedAnnealing::new(t_initial, t_min, alpha)),
-        };
+        let solver = solver_factory::build(strategy, seed);
 
         Ok(Self {
             jsp,

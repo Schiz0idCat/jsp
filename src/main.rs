@@ -2,13 +2,18 @@ use std::process::ExitCode;
 
 use clap::Parser;
 
+use jsp::solver::RandomSeed;
 use jsp::ui::{Cli, Progress, SolverData};
 
 fn main() -> ExitCode {
     // parseo de cli
     let cli = Cli::parse();
 
-    let mut solver_data = match SolverData::new(cli.filepath(), cli.timeout(), cli.strategy()) {
+    let seed = cli.seed().unwrap_or_else(RandomSeed::generate);
+    println!("Semilla: {}\n", seed);
+
+    let mut solver_data = match SolverData::new(cli.filepath(), cli.timeout(), cli.strategy(), seed)
+    {
         Ok(data) => data,
         Err(err) => {
             eprintln!("{}", err);

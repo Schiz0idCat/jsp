@@ -21,6 +21,7 @@ src/
 |       |-- schedule.rs
 |       `-- schedule_item.rs
 |-- solver/
+|   |-- seed.rs
 |   |-- solution/
 |   |   |-- solution_builder.rs
 |   |   |-- solver.rs
@@ -41,18 +42,25 @@ src/
 \end{verbatim}
 
 La interfaz de línea de comandos (CLI) se implementó con la biblioteca \texttt{clap}.
-El programa recibe la ruta de la instancia, un tiempo límite opcional y
+El programa recibe la ruta de la instancia, un tiempo límite opcional, una semilla opcional y
 el subcomando que selecciona la estrategia. Para el \emph{Simulated Annealing},
 los parámetros se ingresan mediante opciones con valores por defecto, que además pueden ser especificadas:
 
 \begin{verbatim}
-./target/release/jsp -f data/facil.txt simulated-annealing
-./target/release/jsp -f data/medio.txt simulated-annealing \
+./target/release/jsp -f data/facil.txt --seed 2026 simulated-annealing
+./target/release/jsp -f data/medio.txt --seed 2027 simulated-annealing \
     -i 1000.0 -m 0.001 -a 0.9995
 \end{verbatim}
 
+La opción global \texttt{--seed <U64>} fija la semilla de las estrategias que utilizan azar.
+Si se omite, el programa genera una semilla a partir de la entropía del sistema.
+En ambos casos la semilla efectivamente utilizada se imprime en la primera línea de la salida.
+Las estrategias deterministas, como \texttt{bruteforce}, no consumen la semilla, pero el valor
+elegido se muestra igualmente para dejar registro de la ejecución.
+
 El binario \texttt{benchmark} ejecuta automáticamente diez repeticiones por instancia,
-extrae el makespan desde la salida de la CLI y calcula la media y la desviación estándar muestral. 
+extrae el makespan desde la salida de la CLI y calcula la media y la desviación estándar muestral.
+Cada repetición se ejecuta con una semilla explícita e imprime tanto la semilla como el makespan obtenido. 
 
 El código fue desarrollado íntegramente por los integrantes del grupo.
 La única referencia externa es la descripción original del \emph{Simulated Annealing} \parencite{kirkpatrick1983},
@@ -91,8 +99,10 @@ job, operación, máquina, inicio, término y duración, necesaria para mostrar 
 
 La solución inicial se genera mediante una permutación aleatoria del vector base que
 contiene cada trabajo repetido según su número de operaciones.
-Para ello se utiliza el generador de números aleatorios de la biblioteca \texttt{rand}.
-Cada ejecución parte de una solución distinta, lo que permite medir la variabilidad del algoritmo.
+Para ello se utiliza el generador de números aleatorios de la biblioteca \texttt{rand},
+inicializado a partir de la semilla de la ejecución.
+Cada semilla distinta produce una solución inicial distinta, lo que permite medir la variabilidad
+del algoritmo; una misma semilla reproduce exactamente la misma ejecución.
 
 \section{Vecindario}
 
@@ -214,7 +224,7 @@ Iteraciones por ejecución & \(k_{\max}\) & 27.625 \\
 Evaluaciones por ejecución & -- & 27.626 \\
 Ejecuciones por instancia & -- & 10 \\
 Tiempo límite & -- & Desactivado \\
-Semilla & -- & Aleatoria del sistema \\
+Semilla & -- & 2026--2035 (\texttt{benchmark}) \\
 Vecindario & -- & Swap de dos posiciones \\
 Criterio de aceptación & -- & Metropolis \\
 \bottomrule
@@ -241,9 +251,9 @@ Para compilar y ejecutar el algoritmo se utilizan los siguientes comandos:
 \begin{verbatim}
 cargo build --release
 
-./target/release/jsp -f data/facil.txt simulated-annealing
-./target/release/jsp -f data/medio.txt simulated-annealing
-./target/release/jsp -f data/dificil.txt simulated-annealing
+./target/release/jsp -f data/facil.txt --seed 2026 simulated-annealing
+./target/release/jsp -f data/medio.txt --seed 2026 simulated-annealing
+./target/release/jsp -f data/dificil.txt --seed 2026 simulated-annealing
 \end{verbatim}
 
 Para reproducir la tabla completa de diez ejecuciones por instancia se ejecuta:
@@ -253,6 +263,8 @@ Para reproducir la tabla completa de diez ejecuciones por instancia se ejecuta:
 \end{verbatim}
 
 El binario \texttt{benchmark} recorre las instancias \texttt{facil.txt},
-\texttt{medio.txt} y \texttt{dificil.txt},
-ejecuta el \emph{Simulated Annealing} diez veces por instancia y reporta el mejor valor,
-el peor valor, la media y la desviación estándar.
+\texttt{medio.txt} y \texttt{dificil.txt}, y ejecuta el \emph{Simulated Annealing}
+diez veces por instancia con las semillas 2026 a 2035.
+Para cada repetición imprime la semilla utilizada y el makespan obtenido, y al final
+reporta el mejor valor, el peor valor, la media y la desviación estándar.
+Esto permite reproducir cada resultado de forma individual ejecutando la CLI con la semilla correspondiente.

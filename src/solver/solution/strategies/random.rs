@@ -1,22 +1,23 @@
 //! Esta estrategia resuelve el taller 5
 
-use rand::rng;
 use rand::seq::SliceRandom;
 
 use super::super::SolutionBuilder;
 use super::super::Solver;
 use crate::domain::Jsp;
 use crate::domain::solution::Schedule;
+use crate::solver::RandomSeed;
 use crate::solver::stop::StopHandle;
 
 /// Estrategia de generación y evaluación de soluciones aleatorias.
 pub struct Random {
     samples: usize,
+    seed: RandomSeed,
 }
 
 impl Random {
-    pub fn new(samples: usize) -> Self {
-        Self { samples }
+    pub fn new(samples: usize, seed: RandomSeed) -> Self {
+        Self { samples, seed }
     }
 }
 
@@ -44,7 +45,7 @@ impl Solver for Random {
 
         let mut best_makespan = usize::MAX;
         let mut best_sequence: Option<Vec<usize>> = None;
-        let mut rng = rng();
+        let mut rng = self.seed.rng();
         let mut current_seq = base_sequence;
 
         stop.start();
