@@ -114,7 +114,7 @@
 \draw[->] (reject.south) |- (cool.east);
 
 % Enfriamiento y regreso a la condición del ciclo
-\draw[->] (cool.west) -- ++(-5.4,0) |- (cond.west);
+\draw[->] (cool.south) -- ++(0,-0.4) -| ([xshift=-5.4cm]cond.west) |- (cond.west);
 
 \end{tikzpicture}
 }%
