@@ -18,7 +18,7 @@ pub struct Cli {
     timeout: Option<u64>,
 
     /// Semilla aleatoria para reproducir la ejecución.
-    #[arg(long, value_name = "SEED", global = true)]
+    #[arg(long, value_name = "U64", global = true)]
     seed: Option<RandomSeed>,
 
     /// Subcomando para elegir la estrategia de solución.

@@ -10,7 +10,7 @@ fn main() -> ExitCode {
     let cli = Cli::parse();
 
     let seed = cli.seed().unwrap_or_else(RandomSeed::generate);
-    println!("Semilla: {}\n", seed);
+    println!("Seed: {}\n", seed);
 
     let mut solver_data = match SolverData::new(cli.filepath(), cli.timeout(), cli.strategy(), seed)
     {
