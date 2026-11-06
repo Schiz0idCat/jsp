@@ -1,20 +1,36 @@
+#[derive(Clone, Copy)]
 pub struct Instance {
+    id: u8,
     name: &'static str,
+    slug: &'static str,
     path: &'static str,
 }
 
 impl Instance {
-    pub fn new(name: &'static str, path: &'static str) -> Self {
-        Self { name, path }
+    pub const fn new(id: u8, name: &'static str, slug: &'static str, path: &'static str) -> Self {
+        Self {
+            id,
+            name,
+            slug,
+            path,
+        }
     }
 }
 
 impl Instance {
-    pub fn name(&self) -> &'static str {
+    pub const fn id(&self) -> u8 {
+        self.id
+    }
+
+    pub const fn name(&self) -> &'static str {
         self.name
     }
 
-    pub fn path(&self) -> &'static str {
+    pub const fn slug(&self) -> &'static str {
+        self.slug
+    }
+
+    pub const fn path(&self) -> &'static str {
         self.path
     }
 }

@@ -18,17 +18,22 @@ impl BenchmarkResult {
     }
 
     /// Retorna la cantidad de ejecuciones registradas.
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.makespans.len()
     }
 
+    /// Indica si no se registraron ejecuciones.
+    pub fn is_empty(&self) -> bool {
+        self.makespans.is_empty()
+    }
+
     /// Retorna el mejor valor (mínimo makespan).
-    fn min(&self) -> f64 {
+    pub fn min(&self) -> f64 {
         self.makespans.iter().cloned().fold(f64::INFINITY, f64::min)
     }
 
     /// Retorna el peor valor (máximo makespan).
-    fn max(&self) -> f64 {
+    pub fn max(&self) -> f64 {
         self.makespans
             .iter()
             .cloned()
@@ -36,13 +41,13 @@ impl BenchmarkResult {
     }
 
     /// Calcula la media aritmética de las muestras.
-    fn mean(&self) -> f64 {
+    pub fn mean(&self) -> f64 {
         let sum: f64 = self.makespans.iter().sum();
         sum / self.len() as f64
     }
 
     /// Calcula la desviación estándar muestral.
-    fn std_dev(&self) -> f64 {
+    pub fn std_dev(&self) -> f64 {
         if self.len() <= 1 {
             return 0.0;
         }

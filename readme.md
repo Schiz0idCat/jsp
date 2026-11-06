@@ -110,9 +110,22 @@ El binario `benchmark` ejecuta diez repeticiones de Simulated Annealing por inst
 usando las semillas `2026` a `2035`. Para cada repetición imprime la semilla y el makespan,
 y al final reporta el mejor valor, el peor valor, la media y la desviación estándar.
 
+Además, escribe los resultados en `docs/informe/Tarea2/datos/`:
+
+- `benchmark.csv`: todas las ejecuciones.
+- `benchmark_facil.csv`, `benchmark_medio.csv`, `benchmark_dificil.csv`: datos por instancia.
+- `benchmark_resumen.csv`: estadísticos por instancia.
+
 ```sh
 cargo build --release
 ./target/release/benchmark
+```
+
+Las figuras del informe se generan a partir de esos CSV: el diagrama de flujo con TikZ
+y el gráfico de cajas con pgfplots. Para regenerar los datos y el PDF completo:
+
+```sh
+make figures
 ```
 
 ## Autores

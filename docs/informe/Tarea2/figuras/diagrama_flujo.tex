@@ -1,0 +1,120 @@
+% Diagrama de flujo del Simulated Annealing implementado.
+% Se mantiene como archivo TikZ independiente para que el informe lo incluya
+% con \input y el PDF se regenere junto con el resto del documento.
+
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.45cm,
+    >=Latex,
+    every node/.style={font=\small},
+    start/.style={
+        ellipse,
+        draw,
+        thick,
+        minimum width=2.4cm,
+        minimum height=0.75cm,
+        align=center
+    },
+    process/.style={
+        rectangle,
+        draw,
+        rounded corners=2pt,
+        thick,
+        minimum width=6.2cm,
+        minimum height=0.8cm,
+        align=center,
+        inner sep=3pt
+    },
+    branch/.style={
+        rectangle,
+        draw,
+        rounded corners=2pt,
+        thick,
+        text width=3.3cm,
+        align=center,
+        inner sep=3pt
+    },
+    decision/.style={
+        diamond,
+        draw,
+        thick,
+        aspect=2.2,
+        align=center,
+        inner sep=1pt,
+        minimum width=5.2cm,
+        minimum height=1.5cm
+    }
+]
+
+\node[start] (inicio) {Inicio};
+
+\node[process, below=of inicio] (init)
+    {Generar una secuencia inicial aleatoria};
+
+\node[process, below=of init] (eval)
+    {Evaluar $C_{\max}$ de la solución inicial\\
+     $best \leftarrow current$};
+
+\node[process, below=of eval] (temp)
+    {$T \leftarrow T_0$};
+
+\node[decision, below=0.6cm of temp] (cond)
+    {¿$T > T_{\min}$\\y sin parada?};
+
+\node[process, right=1.4cm of cond] (return)
+    {Devolver la mejor secuencia\\
+     $best$};
+
+\node[start, below=of return] (fin) {Fin};
+
+\node[process, below=0.7cm of cond] (choose)
+    {Elegir $i \neq j$ con trabajos distintos};
+
+\node[process, below=of choose] (neighbor)
+    {Generar un vecino mediante \texttt{swap}};
+
+\node[process, below=of neighbor] (evaln)
+    {Evaluar $C_{\max}$ del vecino};
+
+\node[process, below=of evaln] (delta)
+    {$\Delta \leftarrow C_{\max}^{\text{vecino}} - C_{\max}^{\text{actual}}$};
+
+\node[decision, below=0.7cm of delta] (accept)
+    {¿$\Delta < 0$ o\\$rand < e^{-\Delta/T}$?};
+
+\node[branch, left=1.0cm of accept] (acceptyes)
+    {Aceptar el vecino\\
+     $current \leftarrow vecino$\\
+     si mejora, $best \leftarrow vecino$};
+
+\node[branch, right=1.0cm of accept] (reject)
+    {Revertir el \texttt{swap}\\
+     $current$ no cambia};
+
+\node[process, below=1.1cm of accept] (cool)
+    {$T \leftarrow \alpha T$};
+
+% Flujo principal
+\draw[->] (inicio) -- (init);
+\draw[->] (init) -- (eval);
+\draw[->] (eval) -- (temp);
+\draw[->] (temp) -- (cond);
+\draw[->] (cond) -- node[right, font=\small] {Sí} (choose);
+\draw[->] (cond) -- node[above, font=\small] {No} (return);
+\draw[->] (return) -- (fin);
+\draw[->] (choose) -- (neighbor);
+\draw[->] (neighbor) -- (evaln);
+\draw[->] (evaln) -- (delta);
+\draw[->] (delta) -- (accept);
+
+% Criterio de aceptación
+\draw[->] (accept) -- node[above, font=\small] {Sí} (acceptyes);
+\draw[->] (accept) -- node[above, font=\small] {No} (reject);
+\draw[->] (acceptyes.south) |- (cool.west);
+\draw[->] (reject.south) |- (cool.east);
+
+% Enfriamiento y regreso a la condición del ciclo
+\draw[->] (cool.west) -- ++(-5.4,0) |- (cond.west);
+
+\end{tikzpicture}
+}%

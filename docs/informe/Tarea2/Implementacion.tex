@@ -47,9 +47,10 @@ el subcomando que selecciona la estrategia. Para el \emph{Simulated Annealing},
 los parámetros se ingresan mediante opciones con valores por defecto, que además pueden ser especificadas:
 
 \begin{verbatim}
-./target/release/jsp -f data/facil.txt --seed 2026 simulated-annealing
-./target/release/jsp -f data/medio.txt --seed 2027 simulated-annealing \
-    -i 1000.0 -m 0.001 -a 0.9995
+./target/release/jsp -f data/facil.txt --seed 2026 \
+    simulated-annealing
+./target/release/jsp -f data/medio.txt --seed 2027 \
+    simulated-annealing -i 1000.0 -m 0.001 -a 0.9995
 \end{verbatim}
 
 La opción global \texttt{--seed <U64>} fija la semilla de las estrategias que utilizan azar.
@@ -190,17 +191,12 @@ que retorna el makespan correspondiente.
 
 \section{Diagrama de flujo}
 
-La \figura{fig:flujo_sa} reserva el espacio para el diagrama de flujo del algoritmo.
-El diagrama se incorporará en la versión final del informe.
+La \figura{fig:flujo_sa} resume el flujo del \emph{Simulated Annealing} implementado,
+desde la generación de la solución inicial hasta la devolución de la mejor secuencia encontrada.
 
 \begin{figure}[H]
 \centering
-% \includegraphics[width=0.85\textwidth]{Tarea2/imagenes/diagrama_flujo.pdf}
-\fbox{\parbox[c][6cm][c]{0.82\textwidth}{
-\centering
-\textit{Espacio reservado para el diagrama de flujo del \emph{Simulated Annealing}.\\
-Reemplazar este recuadro por la figura definitiva.}
-}}
+\input{Tarea2/figuras/diagrama_flujo.tex}
 \caption{Diagrama de flujo del \emph{Simulated Annealing} implementado.}
 \label{fig:flujo_sa}
 \end{figure}
@@ -251,9 +247,12 @@ Para compilar y ejecutar el algoritmo se utilizan los siguientes comandos:
 \begin{verbatim}
 cargo build --release
 
-./target/release/jsp -f data/facil.txt --seed 2026 simulated-annealing
-./target/release/jsp -f data/medio.txt --seed 2026 simulated-annealing
-./target/release/jsp -f data/dificil.txt --seed 2026 simulated-annealing
+./target/release/jsp -f data/facil.txt --seed 2026 \
+    simulated-annealing
+./target/release/jsp -f data/medio.txt --seed 2026 \
+    simulated-annealing
+./target/release/jsp -f data/dificil.txt --seed 2026 \
+    simulated-annealing
 \end{verbatim}
 
 Para reproducir la tabla completa de diez ejecuciones por instancia se ejecuta:

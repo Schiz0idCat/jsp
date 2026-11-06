@@ -26,19 +26,19 @@ para las tres instancias, junto con la media y la desviación estándar muestral
 \toprule
 Ejecución & Fácil (\(6\times6\)) & Medio (\(15\times10\)) & Difícil (\(50\times10\)) \\
 \midrule
-1  & 55 & 1077 & 2794 \\
-2  & 55 & 1053 & 2794 \\
-3  & 55 & 1054 & 2794 \\
-4  & 55 & 1039 & 2794 \\
+1  & 55 & 1069 & 2794 \\
+2  & 55 & 1032 & 2794 \\
+3  & 55 & 1037 & 2794 \\
+4  & 55 & 1032 & 2794 \\
 5  & 55 & 1032 & 2794 \\
 6  & 55 & 1032 & 2794 \\
-7  & 55 & 1032 & 2794 \\
-8  & 55 & 1032 & 2794 \\
-9  & 55 & 1038 & 2794 \\
-10 & 55 & 1032 & 2794 \\
+7  & 55 & 1036 & 2794 \\
+8  & 55 & 1036 & 2794 \\
+9  & 55 & 1032 & 2794 \\
+10 & 55 & 1051 & 2794 \\
 \midrule
-Media & 55,00 & 1042,10 & 2794,00 \\
-Desviación estándar & 0,00 & 14,96 & 0,00 \\
+Media & 55,00 & 1038,90 & 2794,00 \\
+Desviación estándar & 0,00 & 12,07 & 0,00 \\
 \bottomrule
 \end{tabular}
 \caption{Makespan obtenido en diez ejecuciones independientes por instancia.}
@@ -47,17 +47,17 @@ Desviación estándar & 0,00 & 14,96 & 0,00 \\
 
 \section{Resumen estadístico}
 
-La \tabla{tab:resumen} resume los principales estadísticos por instancia y los compara con el óptimo.
-La brecha media se calcula como la diferencia porcentual entre la media de las diez ejecuciones y el óptimo.
+La \tabla{tab:resumen} resume los principales estadísticos por instancia y los compara con el valor de referencia.
+La brecha media se calcula como la diferencia porcentual entre la media de las diez ejecuciones y el valor de referencia.
 
 \begin{table}[htbp]
 \centering
 \begin{tabular}{lrrrrrr}
 \toprule
-Instancia & Óptimo & Mejor & Peor & Media & Desv. est. & Brecha media \\
+Instancia & Referencia & Mejor & Peor & Media & Desv. est. & Brecha media \\
 \midrule
 Fácil   & 55   & 55   & 55   & 55,00   & 0,00  & 0,00\,\% \\
-Medio   & 1032 & 1032 & 1077 & 1042,10 & 14,96 & 0,98\,\% \\
+Medio   & 1032 & 1032 & 1069 & 1038,90 & 12,07 & 0,67\,\% \\
 Difícil & 2794 & 2794 & 2794 & 2794,00 & 0,00  & 0,00\,\% \\
 \bottomrule
 \end{tabular}
@@ -67,53 +67,48 @@ Difícil & 2794 & 2794 & 2794 & 2794,00 & 0,00  & 0,00\,\% \\
 
 \section{Análisis de resultados}
 
-En la instancia fácil, las diez ejecuciones alcanzaron el mismo makespan de 55, que corresponde al óptimo.
+En la instancia fácil, las diez ejecuciones alcanzaron el mismo makespan de 55, que coincide con el valor de referencia.
 La desviación estándar nula indica que el algoritmo fue completamente estable en esta instancia.
 El tamaño reducido del problema (\(6\times6\), 36 operaciones)
 permite que el presupuesto de 27.625 iteraciones explore el espacio de búsqueda con suficiente profundidad,
 incluso partiendo de soluciones iniciales aleatorias distintas.
 
-En la instancia media, seis de las diez ejecuciones alcanzaron el óptimo de 1032,
-mientras que las cuatro restantes obtuvieron valores entre 1038 y 1077.
-La media fue 1042,10 y la desviación estándar 14,96,
-lo que representa una brecha media de solo 0,98\,\% respecto del óptimo.
+En la instancia media, cinco de las diez ejecuciones alcanzaron el valor de referencia de 1032,
+mientras que las cinco restantes obtuvieron valores entre 1036 y 1069.
+La media fue 1038,90 y la desviación estándar 12,07,
+lo que representa una brecha media de solo 0,67\,\% respecto del valor de referencia.
 La mayor variabilidad se explica por el tamaño del problema (\(15\times10\), 150 operaciones)
 y por la naturaleza estocástica del \emph{Simulated Annealing}:
 la calidad del óptimo local alcanzado depende de la trayectoria seguida y de la solución inicial.
-Aun así, el peor resultado (1077) se encuentra a solo 4,36\,\% del óptimo,
+Aun así, el peor resultado (1069) se encuentra a solo 3,59\,\% del valor de referencia,
 lo que muestra que el algoritmo mantiene una calidad aceptable incluso en sus ejecuciones menos favorables.
 
 En la instancia difícil, las diez ejecuciones alcanzaron el valor 2794,
 que coincide con la cota inferior determinada por la máquina más cargada.
-La desviación estándar nula y la coincidencia con el óptimo indican que, para esta instancia,
+La desviación estándar nula y la coincidencia con el valor de referencia indican que, para esta instancia,
 la estructura del problema guía al algoritmo hacia una solución de alta calidad de forma consistente.
 El mayor número de operaciones (\(50\times10\), 500 operaciones)
-no impidió alcanzar el óptimo, aunque el costo por evaluación es mayor que en las otras instancias.
+no impidió alcanzar el valor de referencia, aunque el costo por evaluación es mayor que en las otras instancias.
 
 En términos generales, el \emph{Simulated Annealing} mostró un comportamiento robusto:
 con un único conjunto de parámetros y sin ajuste por instancia,
-alcanzó el óptimo en las tres instancias y mantuvo una brecha media inferior al 1\,\% en el caso más variable.
+coincidió con el valor de referencia en las tres instancias y mantuvo una brecha media inferior al 1\,\% en el caso más variable.
 El presupuesto de aproximadamente 27.625 iteraciones por ejecución resultó suficiente para
 las instancias estudiadas y el costo computacional fue bajo: menos de 0,03 s por ejecución en el equipo de pruebas.
 
 \section{Gráfico de cajas}
 
-La \figura{fig:boxplot} reserva el espacio para el gráfico de cajas de
-los makespan obtenidos en las diez ejecuciones de cada instancia.
-El gráfico permitirá visualizar la dispersión, la mediana y los valores extremos de cada conjunto de resultados.
+La \figura{fig:boxplot} muestra la distribución de los makespan obtenidos en las diez ejecuciones de cada instancia.
+Cada panel utiliza una escala independiente para evitar que las diferencias de magnitud entre instancias oculten la dispersión.
+Los puntos negros corresponden a cada ejecución individual y la caja resume los cuartiles y la mediana.
 
 \begin{figure}[H]
 \centering
-% \includegraphics[width=0.85\textwidth]{Tarea2/imagenes/boxplot.pdf}
-\fbox{\parbox[c][6cm][c]{0.82\textwidth}{
-\centering
-\textit{Espacio reservado para el gráfico de cajas de makespan por instancia.\\
-Reemplazar este recuadro por la figura definitiva.}
-}}
+\input{Tarea2/figuras/boxplot.tex}
 \caption{Gráfico de cajas del makespan obtenido en diez ejecuciones por instancia.}
 \label{fig:boxplot}
 \end{figure}
 
 La instancia fácil y la instancia difícil presentan una dispersión nula,
-por lo que sus cajas se reducen a una línea en el valor óptimo. La instancia media concentra la mayor dispersión,
-con seis ejecuciones en 1032 y cuatro valores superiores.
+por lo que sus cajas se reducen a una línea en el valor de referencia. La instancia media concentra la mayor dispersión,
+con cinco ejecuciones en 1032 y cinco valores superiores.

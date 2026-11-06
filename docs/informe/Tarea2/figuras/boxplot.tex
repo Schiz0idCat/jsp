@@ -1,0 +1,74 @@
+% Gráfico de cajas del makespan.
+% Los datos provienen de docs/informe/Tarea2/datos/benchmark_*.csv,
+% generados automáticamente por el binario benchmark.
+
+\begin{tikzpicture}
+\begin{groupplot}[
+    group style={group size=3 by 1, horizontal sep=1.25cm},
+    width=0.34\textwidth,
+    height=5.2cm,
+    boxplot/draw direction=y,
+    boxplot/box extend=0.35,
+    boxplot/every box/.style={draw=black},
+    boxplot/every whisker/.style={draw=black},
+    boxplot/every median/.style={draw=black},
+    ymajorgrids,
+    major grid style={draw=black!12},
+    tick label style={font=\scriptsize},
+    label style={font=\small},
+    title style={font=\small\bfseries},
+    every axis plot/.append style={thick, black},
+    xtick=\empty,
+    xmin=0.4,
+    xmax=1.6,
+    axis line style={draw=black!70},
+]
+
+\nextgroupplot[
+    title={Fácil},
+    ylabel={Makespan},
+    ymin=53,
+    ymax=57,
+    ytick={54,55,56},
+]
+\addplot+[boxplot, mark=*, mark size=1.4pt, mark options={fill=black, draw=black}] table[col sep=comma, x expr={1}, y=makespan]
+    {Tarea2/datos/benchmark_facil.csv};
+\addplot+[
+    only marks,
+    mark=*,
+    mark size=1.4pt,
+    mark options={fill=black, draw=black, fill opacity=0.65},
+] table[col sep=comma, x=x, y=makespan] {Tarea2/datos/benchmark_facil.csv};
+
+\nextgroupplot[
+    title={Medio},
+    ymin=1025,
+    ymax=1075,
+    ytick={1030,1040,1050,1060,1070},
+]
+\addplot+[boxplot, mark=*, mark size=1.4pt, mark options={fill=black, draw=black}] table[col sep=comma, x expr={1}, y=makespan]
+    {Tarea2/datos/benchmark_medio.csv};
+\addplot+[
+    only marks,
+    mark=*,
+    mark size=1.4pt,
+    mark options={fill=black, draw=black, fill opacity=0.65},
+] table[col sep=comma, x=x, y=makespan] {Tarea2/datos/benchmark_medio.csv};
+
+\nextgroupplot[
+    title={Difícil},
+    ymin=2791,
+    ymax=2797,
+    ytick={2792,2794,2796},
+]
+\addplot+[boxplot, mark=*, mark size=1.4pt, mark options={fill=black, draw=black}] table[col sep=comma, x expr={1}, y=makespan]
+    {Tarea2/datos/benchmark_dificil.csv};
+\addplot+[
+    only marks,
+    mark=*,
+    mark size=1.4pt,
+    mark options={fill=black, draw=black, fill opacity=0.65},
+] table[col sep=comma, x=x, y=makespan] {Tarea2/datos/benchmark_dificil.csv};
+
+\end{groupplot}
+\end{tikzpicture}
