@@ -7,6 +7,28 @@
 \usepackage{booktabs}
 \usepackage{float}
 
+% Enlaces internos y externos del PDF
+\usepackage[
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=titlecolor
+]{hyperref}
+
+% Nombres en español para \autoref
+\renewcommand{\chapterautorefname}{Capítulo}
+\renewcommand{\sectionautorefname}{Sección}
+\renewcommand{\subsectionautorefname}{Subsección}
+\renewcommand{\tableautorefname}{Tabla}
+\renewcommand{\figureautorefname}{Figura}
+\providecommand{\algorithmautorefname}{Algoritmo}
+
+% Referencias con el nombre completo enlazado
+\newcommand{\capitulo}[1]{\autoref{#1}}
+\newcommand{\tabla}[1]{\autoref{#1}}
+\newcommand{\figura}[1]{\autoref{#1}}
+\newcommand{\algoritmo}[1]{\autoref{#1}}
+
 % Nombres en español de los elementos flotantes
 \renewcommand{\contentsname}{\uppercase{Índice General}}
 \renewcommand{\listfigurename}{\uppercase{Lista de Figuras}}
@@ -28,21 +50,31 @@
 \include{Resumen/resumen.tex}
 
 %% ÍNDICES Y LISTAS
-\newpage\addcontentsline{toc}{chapter}{Índice General\vspace{-0.5cm}}
+\newpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Índice General\texorpdfstring{\vspace{-0.5cm}}{}}
 \tableofcontents
 
-\newpage\addcontentsline{toc}{chapter}{Lista de Figuras\vspace{-0.5cm}}
+\newpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Lista de Figuras\texorpdfstring{\vspace{-0.5cm}}{}}
 \listoffigures
 
-\newpage\addcontentsline{toc}{chapter}{Lista de Tablas\vspace{-0.5cm}}
+\newpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Lista de Tablas\texorpdfstring{\vspace{-0.5cm}}{}}
 \listoftables
 
-\newpage\addcontentsline{toc}{chapter}{Lista de Algoritmos\vspace{-0.5cm}}
+\newpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Lista de Algoritmos\texorpdfstring{\vspace{-0.5cm}}{}}
 \listofalgorithms
 
 % Lista de Símbolos
 \input{Simbolos/simbolos.tex}
-\newpage\addcontentsline{toc}{chapter}{Lista de Símbolos\vspace{-0.5cm}}
+\newpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Lista de Símbolos\texorpdfstring{\vspace{-0.5cm}}{}}
 \printnomenclature
 
 \newpage
