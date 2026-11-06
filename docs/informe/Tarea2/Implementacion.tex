@@ -103,7 +103,7 @@ contiene cada trabajo repetido según su número de operaciones.
 Para ello se utiliza el generador de números aleatorios de la biblioteca \texttt{rand},
 inicializado a partir de la semilla de la ejecución.
 Cada semilla distinta produce una solución inicial distinta, lo que permite medir la variabilidad
-del algoritmo; una misma semilla reproduce exactamente la misma ejecución.
+del algoritmo, al mismo tiempo que aseguramos su reproducibilidad.
 
 \section{Vecindario}
 
@@ -232,14 +232,14 @@ Criterio de aceptación & -- & Metropolis \\
 El presupuesto total de la experimentación fue de \(3 \times 10 \times 27.626 = 828.780\)
 evaluaciones de la función objetivo.
 Los tiempos de ejecución medidos en el equipo de pruebas fueron aproximadamente 0,007 s para la instancia fácil,
-0,011 s para la instancia media y 0,028 s para la instancia difícil, incluyendo el tiempo de arranque del proceso.
+0,011 s para la instancia media y 0,028 s para la instancia difícil.
 Estos valores corresponden a un procesador Intel Core i3-1215U con 8 GB de memoria RAM,
 ejecutados sobre Arch Linux con kernel 7.2.14-arch1-1 y arquitectura x86\_64,
-utilizando Rust 1.99.1 (Cargo 1.99.1).
+utilizando Rust edición 2024 y Cargo 1.99.1.
 
-\clearpage
-\section{Reproducibilidad}
-
+% \clearpage
+% \section{Reproducibilidad}
+%
 El repositorio incluye un archivo \texttt{README.txt} con las instrucciones de compilación y ejecución,
 además de la identificación de los integrantes del grupo.
 Para compilar y ejecutar el algoritmo se utilizan los siguientes comandos:

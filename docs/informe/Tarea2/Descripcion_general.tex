@@ -43,7 +43,7 @@ El \emph{Simulated Annealing} es una metaheurística de trayectoria, también de
 A diferencia de las metaheurísticas poblacionales,
 como los algoritmos genéticos o la optimización por enjambre de partículas,
 el \emph{Simulated Annealing} mantiene una sola solución actual y
-la modifica iterativamente mediante un operador de vecindario \parencite{talbi2009}.
+la modifica iterativamente mediante un operador de vecindario.
 Su funcionamiento se inspira en el proceso físico de recocido de los metales:
 a altas temperaturas los átomos pueden reorganizarse y aceptar configuraciones de mayor energía;
 a medida que la temperatura disminuye, el sistema converge hacia configuraciones de menor energía \parencite{kirkpatrick1983}.
@@ -70,8 +70,8 @@ Las principales ventajas del \emph{Simulated Annealing} son:
 
 \begin{itemize}
     \item Es sencillo de implementar y requiere pocos parámetros.
-    \item Permite escapar de óptimos locales gracias a la aceptación probabilística de soluciones peores.
-    \item Es un algoritmo \emph{anytime}: en cualquier momento de la ejecución se dispone de una solución factible y de la mejor solución encontrada hasta ese instante. % TODO: Cuestionar esto
+    \item Permite escapar de optimos locales gracias a la aceptación probabilística de soluciones peores.
+    \item Es un algoritmo \emph{anytime}: en cualquier momento de la ejecución se dispone de una solución factible, la cual es la mejor hasta ese instante.
     \item Se adapta con facilidad a problemas combinatorios en los que es posible definir un vecindario y una función objetivo.
     \item Tiene un bajo costo computacional por iteración cuando la evaluación del vecindario puede realizarse de forma eficiente.
 \end{itemize}
@@ -79,7 +79,7 @@ Las principales ventajas del \emph{Simulated Annealing} son:
 Sus principales desventajas son:
 
 \begin{itemize}
-    \item No garantiza encontrar la solución óptima ni permite certificar optimalidad.
+    \item No garantiza encontrar el óptimo.
     \item Su desempeño es sensible a la calibración de la temperatura inicial, la temperatura mínima y el factor de enfriamiento.
     \item Un enfriamiento demasiado rápido puede conducir a un óptimo local de baja calidad; un enfriamiento demasiado lento puede consumir un tiempo excesivo.
     \item Mantiene una sola solución, por lo que no aprovecha la diversidad de una población.
@@ -91,11 +91,10 @@ Sus principales desventajas son:
 Se eligió el \emph{Simulated Annealing} por dos razones principales.
 Primero, el problema estudiado es de naturaleza combinatoria y
 la metaheurística elegida funciona eficientemente en estos contextos.
-Segundo, el algoritmo es fácil de explicar, implementar y reproducir,
-lo que facilita la entrega y la presentación del trabajo.
+Segundo, el algoritmo es fácil de explicar, implementar y reproducir.
 
 Además, el \emph{Simulated Annealing} ofrece un buen equilibrio entre calidad y
 costo computacional para las tres instancias propuestas.
 Como se muestra en el \capitulo{ch:resultados},
-con un presupuesto de aproximadamente 27.625 iteraciones por ejecución se alcanzó el valor de referencia en las tres instancias,
+con un presupuesto de aproximadamente 27.625 iteraciones por ejecución se obtuvieron las mejores soluciones encontradas para las tres instancias,
 lo que confirma que la elección fue adecuada para el alcance del trabajo.

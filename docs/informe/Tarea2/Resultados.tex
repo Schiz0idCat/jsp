@@ -11,7 +11,7 @@ por lo que los resultados reflejan la variabilidad propia del algoritmo.
 
 El equipo de pruebas fue un computador con procesador Intel Core i3-1215U y 8 GB de memoria RAM,
 con sistema operativo Arch Linux, kernel 7.2.14-arch1-1 y arquitectura x86\_64.
-La implementación utilizó Rust 1.99.1 (Cargo 1.99.1) y las bibliotecas
+La implementación utilizó Rust edición 2024 con Cargo 1.99.1 y las bibliotecas
 \texttt{clap}, \texttt{rand}, \texttt{indicatif}, \texttt{ctrlc} y \texttt{thiserror}.
 El binario \texttt{benchmark} automatizó las treinta ejecuciones y el cálculo de los estadísticos.
 
@@ -47,18 +47,17 @@ Desviación estándar & 0,00 & 12,07 & 0,00 \\
 
 \section{Resumen estadístico}
 
-La \tabla{tab:resumen} resume los principales estadísticos por instancia y los compara con el valor de referencia.
-La brecha media se calcula como la diferencia porcentual entre la media de las diez ejecuciones y el valor de referencia.
+La \tabla{tab:resumen} resume los principales estadísticos por instancia.
 
 \begin{table}[htbp]
 \centering
-\begin{tabular}{lrrrrrr}
+\begin{tabular}{lrrrr}
 \toprule
-Instancia & Referencia & Mejor & Peor & Media & Desv. est. & Brecha media \\
+Instancia & Mejor & Peor & Media & Desv. est. \\
 \midrule
-Fácil   & 55   & 55   & 55   & 55,00   & 0,00  & 0,00\,\% \\
-Medio   & 1032 & 1032 & 1069 & 1038,90 & 12,07 & 0,67\,\% \\
-Difícil & 2794 & 2794 & 2794 & 2794,00 & 0,00  & 0,00\,\% \\
+Fácil   & 55   & 55   & 55,00   & 0,00  \\
+Medio   & 1032 & 1069 & 1038,90 & 12,07 \\
+Difícil & 2794 & 2794 & 2794,00 & 0,00  \\
 \bottomrule
 \end{tabular}
 \caption{Resumen estadístico de las diez ejecuciones por instancia.}
@@ -67,32 +66,33 @@ Difícil & 2794 & 2794 & 2794 & 2794,00 & 0,00  & 0,00\,\% \\
 
 \section{Análisis de resultados}
 
-En la instancia fácil, las diez ejecuciones alcanzaron el mismo makespan de 55, que coincide con el valor de referencia.
+En la instancia fácil, las diez ejecuciones alcanzaron el mismo makespan de 55,
+que fue el mejor valor encontrado para esta instancia.
 La desviación estándar nula indica que el algoritmo fue completamente estable en esta instancia.
 El tamaño reducido del problema (\(6\times6\), 36 operaciones)
 permite que el presupuesto de 27.625 iteraciones explore el espacio de búsqueda con suficiente profundidad,
 incluso partiendo de soluciones iniciales aleatorias distintas.
 
-En la instancia media, cinco de las diez ejecuciones alcanzaron el valor de referencia de 1032,
+En la instancia media, cinco de las diez ejecuciones alcanzaron el mejor valor encontrado de 1032,
 mientras que las cinco restantes obtuvieron valores entre 1036 y 1069.
-La media fue 1038,90 y la desviación estándar 12,07,
-lo que representa una brecha media de solo 0,67\,\% respecto del valor de referencia.
+La media fue 1038,90 y la desviación estándar 12,07.
 La mayor variabilidad se explica por el tamaño del problema (\(15\times10\), 150 operaciones)
 y por la naturaleza estocástica del \emph{Simulated Annealing}:
-la calidad del óptimo local alcanzado depende de la trayectoria seguida y de la solución inicial.
-Aun así, el peor resultado (1069) se encuentra a solo 3,59\,\% del valor de referencia,
+la calidad del mínimo local alcanzado depende de la trayectoria seguida y de la solución inicial.
+Aun así, el peor resultado (1069) se encuentra a solo 3,59\,\% por encima del mejor valor encontrado,
 lo que muestra que el algoritmo mantiene una calidad aceptable incluso en sus ejecuciones menos favorables.
 
-En la instancia difícil, las diez ejecuciones alcanzaron el valor 2794,
-que coincide con la cota inferior determinada por la máquina más cargada.
-La desviación estándar nula y la coincidencia con el valor de referencia indican que, para esta instancia,
-la estructura del problema guía al algoritmo hacia una solución de alta calidad de forma consistente.
+En la instancia difícil, las diez ejecuciones alcanzaron el mismo valor de 2794,
+que fue el mejor valor encontrado para esta instancia.
+La desviación estándar nula indica que el algoritmo se comportó de forma consistente:
+la estructura del problema guía la búsqueda hacia soluciones de alta calidad.
 El mayor número de operaciones (\(50\times10\), 500 operaciones)
-no impidió alcanzar el valor de referencia, aunque el costo por evaluación es mayor que en las otras instancias.
+no afectó la estabilidad de los resultados, aunque el costo por evaluación es mayor que en las otras instancias.
 
 En términos generales, el \emph{Simulated Annealing} mostró un comportamiento robusto:
 con un único conjunto de parámetros y sin ajuste por instancia,
-coincidió con el valor de referencia en las tres instancias y mantuvo una brecha media inferior al 1\,\% en el caso más variable.
+las diez ejecuciones de las instancias fácil y difícil alcanzaron el mejor valor encontrado,
+y en la instancia media lo alcanzaron cinco de las diez ejecuciones.
 El presupuesto de aproximadamente 27.625 iteraciones por ejecución resultó suficiente para
 las instancias estudiadas y el costo computacional fue bajo: menos de 0,03 s por ejecución en el equipo de pruebas.
 
@@ -110,5 +110,5 @@ Los puntos negros corresponden a cada ejecución individual y la caja resume los
 \end{figure}
 
 La instancia fácil y la instancia difícil presentan una dispersión nula,
-por lo que sus cajas se reducen a una línea en el valor de referencia. La instancia media concentra la mayor dispersión,
+por lo que sus cajas se reducen a una línea en su mejor valor encontrado. La instancia media concentra la mayor dispersión,
 con cinco ejecuciones en 1032 y cinco valores superiores.

@@ -2,22 +2,18 @@
 \label{ch:mejor_solucion}
 
 Para cada instancia se registró la mejor solución encontrada entre las diez ejecuciones independientes.
-La \tabla{tab:mejor_solucion} presenta el makespan de la mejor solución,
-el valor de referencia y la brecha correspondiente.
-Los valores de referencia se usan únicamente para calcular la brecha
-y no forman parte de la metaheurística implementada.
-En las instancias media y difícil, el mejor makespan coincide con la cota inferior
-dada por la máquina más cargada, por lo que dichas soluciones son óptimas.
+La \tabla{tab:mejor_solucion} presenta el makespan de cada solución y el número de ejecuciones que alcanzaron el mismo valor.
+Todas las soluciones reportadas fueron obtenidas por la implementación desarrollada en este trabajo.
 
 \begin{table}[htbp]
 \centering
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrr}
 \toprule
-Instancia & Tamaño & Mejor \(C_{\max}\) & Referencia & Brecha & Ejecuciones en la referencia \\
+Instancia & Tamaño & Mejor \(C_{\max}\) & Ejecuciones que la alcanzaron \\
 \midrule
-Fácil   & \(6\times6\)   & 55   & 55   & 0,00\,\% & 10/10 \\
-Medio   & \(15\times10\) & 1032 & 1032 & 0,00\,\% & 5/10 \\
-Difícil & \(50\times10\) & 2794 & 2794 & 0,00\,\% & 10/10 \\
+Fácil   & \(6\times6\)   & 55   & 10/10 \\
+Medio   & \(15\times10\) & 1032 & 5/10 \\
+Difícil & \(50\times10\) & 2794 & 10/10 \\
 \bottomrule
 \end{tabular}
 \caption{Mejor solución encontrada para cada instancia.}
@@ -25,16 +21,9 @@ Difícil & \(50\times10\) & 2794 & 2794 & 0,00\,\% & 10/10 \\
 \end{table}
 
 La mejor solución de la instancia fácil se obtuvo en las diez ejecuciones,
-con un makespan de 55. En la instancia media, el valor de referencia de 1032 se alcanzó en cinco de las diez ejecuciones;
+con un makespan de 55. En la instancia media, el mejor valor encontrado fue 1032
+y se repitió en cinco de las diez ejecuciones;
 las cinco restantes quedaron entre 1036 y 1069.
-En la instancia difícil, las diez ejecuciones alcanzaron el valor 2794.
+En la instancia difícil, las diez ejecuciones alcanzaron el mismo valor de 2794.
 
-La brecha se calculó como
-\[
-    \text{brecha} = \frac{C_{\max}^{\text{mejor}} - C_{\max}^{\text{ref}}}{C_{\max}^{\text{ref}}} \times 100\,\%.
-\]
-
-En las tres instancias la mejor solución encontrada coincide con el valor de referencia, por lo que la brecha es cero.
-En las instancias media y difícil, además, ese valor coincide con la cota inferior dada por la máquina más cargada,
-lo que prueba que la solución encontrada es óptima.
 La diferencia entre ejecuciones se analiza con mayor detalle en el \capitulo{ch:resultados}.
