@@ -1,24 +1,36 @@
-//! Representa un trabajo y la secuencia ordenada de sus operaciones.
+//! Trabajo del Job Shop Problem.
+//!
+//! En el modelo del enunciado, el conjunto de trabajos se denota por `J = {1, 2, ..., n}`.
+//! Cada trabajo `j` tiene una secuencia ordenada de operaciones `O_j = {o_j1, o_j2, ..., o_jm}`.
+//! Esa secuencia no se puede alterar:
+//! la operación `r + 1` solo puede comenzar cuando terminó la operación `r`.
 
 use std::fmt::Display;
 
 use super::Operation;
 
-/// Trabajo de una instancia JSP.
+/// Trabajo `j` de una instancia JSP.
 ///
-/// Cada trabajo tiene un identificador y una secuencia de operaciones que
-/// deben ejecutarse en el orden definido por el archivo de la instancia.
+/// Contiene el identificador visible del trabajo y su secuencia de
+/// operaciones. El orden del vector `operations` representa exactamente la
+/// precedencia tecnológica `o_j1 -> o_j2 -> ... -> o_jm`.
 pub struct Job {
-    /// Identificador del trabajo.
+    /// Identificador visible del trabajo (`j` en el modelo, normalmente 1..n).
     id: usize,
 
-    /// Operaciones del trabajo en orden de precedencia.
+    /// Secuencia de operaciones `O_j`.
+    ///
+    /// La posición `r` del vector corresponde a la operación `r + 1` del trabajo.
+    /// Cada elemento indica en qué máquina se ejecuta esa operación y cuánto demora.
     operations: Vec<Operation>,
 }
 
 // Inicializadores
 impl Job {
-    /// Crea un trabajo con su identificador y sus operaciones.
+    /// Crea un trabajo con su identificador visible y sus operaciones.
+    ///
+    /// `id` se usa para la salida del programa. `operations` debe venir en el
+    /// orden de precedencia definido por el archivo de la instancia.
     pub fn new(id: usize, operations: Vec<Operation>) -> Self {
         Self { id, operations }
     }
@@ -26,12 +38,12 @@ impl Job {
 
 // Getters
 impl Job {
-    /// Retorna las operaciones del trabajo en orden de precedencia.
+    /// Retorna la secuencia `O_j` en orden de precedencia.
     pub fn operations(&self) -> &[Operation] {
         &self.operations
     }
 
-    /// Retorna el identificador del trabajo.
+    /// Retorna el identificador visible del trabajo.
     pub fn id(&self) -> usize {
         self.id
     }
@@ -39,7 +51,8 @@ impl Job {
 
 impl Display for Job {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Formatea cada operación en una columna de ancho fijo.
+        // Cada operación se muestra como una columna de ancho fijo. El orden
+        // de izquierda a derecha es el orden de precedencia del trabajo.
         let ops = self
             .operations
             .iter()

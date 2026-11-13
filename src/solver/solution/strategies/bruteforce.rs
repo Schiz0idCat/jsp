@@ -1,4 +1,20 @@
-//! Estrategia de búsqueda exhaustiva por permutaciones.
+//! Búsqueda exhaustiva sobre secuencias de trabajos.
+//!
+//! # Representación de una solución
+//!
+//! Una solución se codifica como una secuencia de identificadores internos de
+//! trabajo. Si el trabajo `j` tiene `|O_j|` operaciones, su identificador
+//! aparece exactamente `|O_j|` veces. Por ejemplo, si el trabajo 0 tiene tres
+//! operaciones, la secuencia base contiene `[0, 0, 0]`.
+//!
+//! Al recorrer la secuencia de izquierda a derecha, la primera aparición del
+//! trabajo `j` representa su operación 1, la segunda representa su operación 2,
+//! y así sucesivamente. De esta forma, la precedencia `o_j1 -> o_j2 -> ...`
+//! siempre se respeta y toda permutación del multiconjunto es una solución
+//! factible.
+//!
+//! La fuerza bruta enumera todas las permutaciones distintas de ese
+//! multiconjunto y conserva la que produce el menor makespan `C`.
 
 use super::super::SolutionBuilder;
 use super::super::Solver;
@@ -32,12 +48,14 @@ impl Solver for BruteForce {
     ///
     /// La búsqueda se detiene si el [`StopHandle`] lo solicita.
     fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
+        // Sin trabajos no hay operaciones que programar.
         if jsp.jobs().is_empty() {
             return None;
         }
 
-        // La máquina con el identificador más alto determina el tamaño de los
-        // arreglos de disponibilidad usados al evaluar una secuencia.
+        // `max_machine_id` es el mayor índice interno de máquina (0-based).
+        // Se usa para dimensionar los arreglos de disponibilidad
+        // de máquinas al evaluar una secuencia.
         let max_machine_id = jsp
             .jobs()
             .iter()
@@ -45,9 +63,10 @@ impl Solver for BruteForce {
             .map(|op| op.machine())
             .max()?;
 
-        // Construye la secuencia base con cada trabajo
-        // repetido según su cantidad de operaciones.
-        // Por ejemplo, el trabajo 0 con tres operaciones aporta [0, 0, 0].
+        // Secuencia base del multiconjunto de operaciones. Cada aparición del
+        // índice `idx` representa la siguiente operación pendiente del trabajo
+        // `idx`. Por ejemplo, el trabajo 0 con tres operaciones aporta
+        // `[0, 0, 0]`.
         let mut base_sequence = Vec::new();
         for (idx, job) in jsp.jobs().iter().enumerate() {
             for _ in 0..job.operations().len() {
@@ -55,14 +74,18 @@ impl Solver for BruteForce {
             }
         }
 
+        // `best_makespan` es el menor valor de `C` encontrado hasta ahora.
+        // `best_sequence` guarda la codificación que produjo ese valor.
+        // `current_seq` es la permutación que se evalúa en la iteración actual.
         let mut best_makespan = usize::MAX;
         let mut best_sequence: Option<Vec<usize>> = None;
         let mut current_seq = base_sequence;
 
         stop.start();
 
-        // Se consulta la condición de parada cada cierto número de permutaciones
-        // para no penalizar en exceso el recorrido exhaustivo.
+        // La condición de parada no se consulta en cada permutación porque el
+        // recorrido puede ser muy grande y la consulta añade sobrecarga. Este
+        // intervalo es una decisión de implementación, no parte del modelo JSP.
         const CHECK_INTERVAL: u64 = 100_000;
         let mut iter_count: u64 = 0;
 
@@ -73,25 +96,35 @@ impl Solver for BruteForce {
                 }
                 iter_count += 1;
 
+                // Decodifica la secuencia y obtiene el makespan `C`.
                 let makespan = self.evaluate_makespan(jsp, &current_seq, max_machine_id);
 
+                // Se conserva la secuencia si mejora el menor makespan visto.
                 if makespan < best_makespan {
                     best_makespan = makespan;
                     best_sequence = Some(current_seq.clone());
                 }
 
+                // Avanza a la siguiente permutación lexicográfica.
+                // Cuando no quedan permutaciones, termina.
                 if !next_permutation(&mut current_seq) {
                     break;
                 }
             }
         }
 
+        // `best_sequence` es la mejor codificación encontrada. Se decodifica
+        // una última vez para construir la tabla de tiempos de inicio y fin.
         let best_seq = best_sequence?;
         Some(self.build_schedule(jsp, &best_seq, max_machine_id))
     }
 }
 
 /// Genera la siguiente permutación lexicográfica de `arr`.
+///
+/// Como `arr` puede contener identificadores repetidos (un trabajo aparece una
+/// vez por cada operación), esta función recorre solo permutaciones distintas
+/// del conjunto, no todas las permutaciones de posiciones.
 ///
 /// Retorna `true` si existe una permutación siguiente y `false` si `arr` ya
 /// está ordenado de mayor a menor.
@@ -100,7 +133,8 @@ fn next_permutation<T: Ord>(arr: &mut [T]) -> bool {
         return false; // No hay nada que permutar.
     }
 
-    // Desde la derecha, busca el primer par que no sea descendente.
+    // Desde la derecha, busca el primer par que no sea descendente. Ese par
+    // marca el punto donde aún se puede generar una permutación mayor.
     let mut i = arr.len() - 1;
     while i > 0 && arr[i - 1] >= arr[i] {
         i -= 1;
@@ -113,7 +147,8 @@ fn next_permutation<T: Ord>(arr: &mut [T]) -> bool {
     let idx_pivot = i - 1;
     let pivot = &arr[idx_pivot]; // Primer elemento del par no descendente.
 
-    // Desde la derecha, busca el menor elemento mayor que el pivote.
+    // Desde la derecha, busca el menor elemento mayor que el pivote para
+    // intercambiarlo y luego ordenar el sufijo de menor a mayor.
     let mut j = arr.len() - 1;
     while arr[j] <= *pivot {
         j -= 1;

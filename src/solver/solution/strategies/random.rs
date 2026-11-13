@@ -1,4 +1,13 @@
-//! Estrategia de muestreo aleatorio de secuencias.
+//! Muestreo aleatorio de secuencias de trabajos.
+//!
+//! Cada solución se codifica como una secuencia con una aparición por cada
+//! operación de cada trabajo. Al mezclar esa secuencia se obtiene una solución
+//! factible: el decodificador interpreta las operaciones de cada trabajo en el
+//! orden `o_j1, o_j2, ...`, respetando la precedencia.
+//!
+//! Esta estrategia no aprende de las soluciones anteriores: solo genera
+//! `samples` secuencias aleatorias, calcula su makespan `C` y conserva la
+//! mejor. Sirve como línea base para comparar con las metaheurísticas.
 
 use rand::seq::SliceRandom;
 
@@ -30,12 +39,13 @@ impl SolutionBuilder for Random {}
 impl Solver for Random {
     /// Genera y evalúa secuencias aleatorias, conservando la mejor.
     fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
+        // Sin trabajos no hay operaciones que programar.
         if jsp.jobs().is_empty() {
             return None;
         }
 
-        // Obtiene la máquina de mayor identificador para dimensionar los
-        // arreglos internos de evaluación.
+        // Mayor índice interno de máquina (0-based). Se usa para dimensionar
+        // los arreglos que registran cuándo queda libre cada máquina.
         let max_machine_id = jsp
             .jobs()
             .iter()
@@ -43,7 +53,9 @@ impl Solver for Random {
             .map(|op| op.machine())
             .max()?;
 
-        // Secuencia base: cada trabajo aparece una vez por operación.
+        // Secuencia base: cada trabajo se repite una vez por operación.
+        // El índice `idx` es la posición 0-based del trabajo en `jsp.jobs()`.
+        // No es el identificador visible `Job::id`.
         let mut base_sequence = Vec::new();
         for (idx, job) in jsp.jobs().iter().enumerate() {
             for _ in 0..job.operations().len() {
@@ -51,6 +63,8 @@ impl Solver for Random {
             }
         }
 
+        // `best_makespan` es el menor `C` encontrado. `best_sequence` es la
+        // codificación que lo produjo. `current_seq` es la muestra actual.
         let mut best_makespan = usize::MAX;
         let mut best_sequence: Option<Vec<usize>> = None;
         let mut rng = self.seed.rng();
@@ -63,17 +77,23 @@ impl Solver for Random {
                 break;
             }
 
-            // Mezcla la secuencia para obtener una solución factible aleatoria.
+            // Mezcla la secuencia actual. Al cambiar el orden de los
+            // identificadores de trabajo cambia también el orden en que el
+            // decodificador interpreta las operaciones de cada trabajo.
             current_seq.shuffle(&mut rng);
 
+            // Decodifica la secuencia y calcula el makespan `C`.
             let makespan = self.evaluate_makespan(jsp, &current_seq, max_machine_id);
 
+            // Conserva la muestra si mejora el mejor makespan conocido.
             if makespan < best_makespan {
                 best_makespan = makespan;
                 best_sequence = Some(current_seq.clone());
             }
         }
 
+        // Convierte la mejor codificación en la tabla de tiempos de inicio y
+        // fin de cada operación.
         let best_seq = best_sequence?;
         Some(self.build_schedule(jsp, &best_seq, max_machine_id))
     }

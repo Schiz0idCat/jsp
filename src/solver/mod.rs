@@ -8,4 +8,5 @@ pub mod solution;
 /// Condiciones de parada de las estrategias.
 pub mod stop;
 
+/// Almacenamiento de la semilla para reproducir resultados.
 pub use seed::RandomSeed;

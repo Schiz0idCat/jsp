@@ -1,4 +1,21 @@
-//! Estrategia de búsqueda local por primera mejora.
+//! Búsqueda local por primera mejora sobre secuencias de trabajos.
+//!
+//! # Representación y vecindario
+//!
+//! Una solución se codifica como una secuencia con una aparición por cada
+//! operación de cada trabajo. La posición de cada identificador indica el
+//! orden en que el decodificador interpreta las operaciones.
+//!
+//! El vecindario se genera intercambiando dos posiciones de la secuencia. Si
+//! las posiciones contienen trabajos distintos, el orden de las operaciones
+//! cambia y, por lo tanto, puede cambiar el makespan `C`. Si contienen el
+//! mismo trabajo, la secuencia decodificada es equivalente y el movimiento se
+//! descarta.
+//!
+//! La estrategia aplica **primera mejora**: recorre el vecindario y acepta el
+//! primer vecino que reduce `C`. Luego reinicia la exploración desde esa nueva
+//! solución. Se detiene cuando ningún vecino mejora, es decir, en un mínimo
+//! local.
 
 use rand::seq::SliceRandom;
 
@@ -29,9 +46,19 @@ impl LocalSearch {
 
     /// Aplica búsqueda local completa con criterio de primera mejora.
     ///
-    /// Explora el vecindario de la secuencia mediante intercambios hasta
-    /// alcanzar un mínimo local o hasta que se cumpla una condición de parada.
-    /// Retorna el makespan de la secuencia resultante.
+    /// # Parámetros
+    ///
+    /// - `jsp`: instancia con los conjuntos `J` y `M` y las operaciones.
+    /// - `sequence`: solución codificada actual. Se modifica in-place con los
+    ///   intercambios que mejoran el makespan.
+    /// - `max_machine_id`: mayor índice interno de máquina, usado para
+    ///   dimensionar los arreglos de disponibilidad.
+    /// - `stop`: condiciones de parada por tiempo o `Ctrl+C`.
+    /// - `iter_count`: contador compartido de evaluaciones. Se usa para no
+    ///   consultar la parada en cada vecino.
+    ///
+    /// Retorna el makespan `C` de la secuencia al alcanzar el mínimo local o
+    /// al solicitarse la detención.
     fn first_improvement(
         &self,
         jsp: &Jsp,
@@ -40,8 +67,11 @@ impl LocalSearch {
         stop: &StopHandle,
         iter_count: &mut u64,
     ) -> usize {
-        // Se consulta la condición de parada cada cierto número de evaluaciones.
+        // La parada se consulta cada cierto número de evaluaciones. Este
+        // intervalo es una decisión de implementación, no parte del modelo JSP.
         const CHECK_INTERVAL: u64 = 10_000;
+
+        // Valor de `C` de la solución actual.
         let mut current_makespan = self.evaluate_makespan(jsp, sequence, max_machine_id);
 
         if sequence.len() <= 1 {
@@ -49,12 +79,16 @@ impl LocalSearch {
         }
 
         'search: loop {
+            // `improved` indica si en esta pasada se encontró un vecino mejor.
             let mut improved = false;
 
+            // Recorre todos los pares de posiciones (i, j) con i < j.
             for i in 0..sequence.len() {
                 for j in (i + 1)..sequence.len() {
                     if sequence[i] == sequence[j] {
-                        continue; // Intercambiar el mismo trabajo no altera la secuencia.
+                        // Intercambiar dos apariciones del mismo trabajo no
+                        // cambia la secuencia decodificada: no es un vecino.
+                        continue;
                     }
 
                     if (*iter_count).is_multiple_of(CHECK_INTERVAL) && stop.should_stop() {
@@ -62,26 +96,31 @@ impl LocalSearch {
                     }
                     *iter_count += 1;
 
+                    // Genera el vecino en el mismo buffer y lo evalúa.
                     sequence.swap(i, j);
                     let makespan = self.evaluate_makespan(jsp, sequence, max_machine_id);
 
-                    // Primera mejora: se acepta el primer vecino que mejore.
+                    // Primera mejora: se acepta el primer vecino que reduzca C.
                     if makespan < current_makespan {
                         current_makespan = makespan;
                         improved = true;
                         break;
                     } else {
-                        sequence.swap(i, j); // Revierte el movimiento si no mejora.
+                        // Si no mejora, se revierte para volver a la solución
+                        // actual y seguir explorando otros pares.
+                        sequence.swap(i, j);
                     }
                 }
 
                 if improved {
-                    break; // Reinicia la exploración desde la nueva solución.
+                    // Se reinicia la exploración desde la nueva solución.
+                    break;
                 }
             }
 
             if !improved {
-                break; // Ningún vecino mejora: se alcanzó un mínimo local.
+                // Ningún vecino mejora: se alcanzó un mínimo local.
+                break;
             }
         }
 
@@ -94,10 +133,13 @@ impl SolutionBuilder for LocalSearch {}
 impl Solver for LocalSearch {
     /// Explora varias soluciones iniciales y retorna la mejor encontrada.
     fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
+        // Sin trabajos no hay operaciones que programar.
         if jsp.jobs().is_empty() {
             return None;
         }
 
+        // Mayor índice interno de máquina (0-based), usado para dimensionar
+        // los arreglos de disponibilidad.
         let max_machine_id = jsp
             .jobs()
             .iter()
@@ -113,6 +155,9 @@ impl Solver for LocalSearch {
             }
         }
 
+        // `best_makespan` es el menor `C` entre todas las muestras.
+        // `best_sequence` guarda la codificación que lo produjo.
+        // `current_seq` es la solución que se está mejorando en cada muestra.
         let mut best_makespan = usize::MAX;
         let mut best_sequence: Option<Vec<usize>> = None;
         let mut rng = self.seed.rng();
@@ -129,6 +174,7 @@ impl Solver for LocalSearch {
             // Cada muestra parte de una permutación inicial distinta.
             current_seq.shuffle(&mut rng);
 
+            // Desciende hasta un mínimo local y obtiene su makespan.
             let makespan = self.first_improvement(
                 jsp,
                 &mut current_seq,
@@ -137,12 +183,14 @@ impl Solver for LocalSearch {
                 &mut iter_count,
             );
 
+            // Conserva la muestra si mejora el mejor resultado global.
             if makespan < best_makespan {
                 best_makespan = makespan;
                 best_sequence = Some(current_seq.clone());
             }
         }
 
+        // Decodifica la mejor secuencia en la tabla de tiempos de inicio/fin.
         let best_seq = best_sequence?;
         Some(self.build_schedule(jsp, &best_seq, max_machine_id))
     }
