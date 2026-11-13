@@ -70,7 +70,7 @@ Las principales ventajas del \emph{Simulated Annealing} son:
 
 \begin{itemize}
     \item Es sencillo de implementar y requiere pocos parámetros.
-    \item Permite escapar de optimos locales gracias a la aceptación probabilística de soluciones peores.
+    \item Permite escapar de mínimos locales gracias a la aceptación probabilística de soluciones peores.
     \item Es un algoritmo \emph{anytime}: en cualquier momento de la ejecución se dispone de una solución factible, la cual es la mejor hasta ese instante.
     \item Se adapta con facilidad a problemas combinatorios en los que es posible definir un vecindario y una función objetivo.
     \item Tiene un bajo costo computacional por iteración cuando la evaluación del vecindario puede realizarse de forma eficiente.
@@ -79,9 +79,9 @@ Las principales ventajas del \emph{Simulated Annealing} son:
 Sus principales desventajas son:
 
 \begin{itemize}
-    \item No garantiza encontrar el óptimo.
+    \item No garantiza encontrar la mejor solución posible.
     \item Su desempeño es sensible a la calibración de la temperatura inicial, la temperatura mínima y el factor de enfriamiento.
-    \item Un enfriamiento demasiado rápido puede conducir a un óptimo local de baja calidad; un enfriamiento demasiado lento puede consumir un tiempo excesivo.
+    \item Un enfriamiento demasiado rápido puede conducir a un mínimo local de baja calidad; un enfriamiento demasiado lento puede consumir un tiempo excesivo.
     \item Mantiene una sola solución, por lo que no aprovecha la diversidad de una población.
     \item La calidad de la solución depende del vecindario elegido y de la representación utilizada.
 \end{itemize}

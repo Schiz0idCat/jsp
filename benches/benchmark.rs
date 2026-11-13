@@ -1,3 +1,9 @@
+//! Benchmark reproducible de las instancias del informe.
+//!
+//! Ejecuta la CLI con las semillas `2026..2035` para cada instancia,
+//! recoge los makespan y escribe los resultados en CSV para que pgfplots
+//! y el informe los consuman directamente.
+
 mod benchmark_result;
 mod instance;
 
@@ -10,17 +16,29 @@ use std::io::{self, BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+/// Cantidad de ejecuciones independientes por instancia.
 const RUNS_PER_INSTANCE: usize = 10;
+
+/// Primera semilla de la secuencia reproducible.
 const BASE_SEED: u64 = 2026;
+
+/// Directorio donde se escriben los CSV del informe.
 const RESULTS_DIR: &str = "docs/informe/Tarea2/datos";
 
+/// Datos de una ejecución individual.
 #[derive(Clone, Copy)]
 struct Run {
+    /// Número de ejecución dentro de la instancia.
     execution: usize,
+
+    /// Semilla usada por la CLI.
     seed: u64,
+
+    /// Makespan obtenido.
     makespan: f64,
 }
 
+/// Punto de entrada del benchmark.
 fn main() {
     let instances = [
         Instance::new(1, "Fácil", "facil", "data/facil.txt"),
@@ -78,7 +96,7 @@ fn main() {
                 break;
             }
 
-            // Extrae el makespan del output de la CLI
+            // Extrae el makespan del output de la CLI.
             if let Some(makespan) = parse_makespan(&stdout) {
                 println!(
                     "  Ejecución {:2}/10 -> Semilla: {} | Makespan: {}",
@@ -131,6 +149,7 @@ fn write_results(
     write_summary_csv(&dir.join("benchmark_resumen.csv"), results)?;
 
     for (instance, _) in results {
+        // Filtra las ejecuciones que pertenecen a la instancia actual.
         let runs: Vec<Run> = all_runs
             .iter()
             .filter_map(|(current, run)| (current.id() == instance.id()).then_some(*run))
@@ -218,13 +237,14 @@ fn write_summary_csv(path: &Path, results: &[(Instance, BenchmarkResult)]) -> io
 /// Extrae la semilla impresa por la CLI.
 fn parse_seed(output: &str) -> Option<u64> {
     output.lines().find_map(|line| {
-        line.trim()
-            .strip_prefix("Semilla:")
+        let line = line.trim();
+        line.strip_prefix("Semilla:")
+            .or_else(|| line.strip_prefix("Seed:"))
             .and_then(|value| value.trim().parse().ok())
     })
 }
 
-/// Extrae el valor numérico del makespan a partir de la salida en consola.
+/// Extrae el valor numérico del makespan desde la salida en consola.
 fn parse_makespan(output: &str) -> Option<f64> {
     for line in output.lines() {
         let clean_line = line.replace('\r', "");
@@ -232,15 +252,15 @@ fn parse_makespan(output: &str) -> Option<f64> {
         if clean_line.contains("Makespan:")
             && let Some(after_colon) = clean_line.split("Makespan:").nth(1)
         {
-            // Extrae los primeros dígitos numéricos encontrados después de ':'
+            // Toma los primeros dígitos numéricos encontrados después de ':'.
             let number_str: String = after_colon
                 .chars()
                 .skip_while(|c| !c.is_numeric())
                 .take_while(|c| c.is_numeric())
                 .collect();
 
-            if let Ok(val) = number_str.parse::<f64>() {
-                return Some(val);
+            if let Ok(value) = number_str.parse::<f64>() {
+                return Some(value);
             }
         }
     }

@@ -1,3 +1,5 @@
+//! Define una instancia completa del Job Shop Problem y su lectura.
+
 use std::fmt::Display;
 use std::fs;
 use std::path::Path;
@@ -9,18 +11,24 @@ use super::{Job, Operation};
 use crate::solver::solution::Solver;
 use crate::solver::stop::StopHandle;
 
-/// Representa la instancia completa del problema Job Shop Problem.
-/// Contiene las dimenciones del problema (cantidad de trabajo y máquinas),
-/// además del orden en que deben procesarse.
+/// Instancia completa del Job Shop Problem.
+///
+/// Contiene las dimensiones del problema (cantidad de trabajos y de máquinas)
+/// y la lista de trabajos con sus operaciones.
 pub struct Jsp {
+    /// Cantidad de trabajos de la instancia.
     n_jobs: usize,
+
+    /// Cantidad de máquinas de la instancia.
     n_machines: usize,
+
+    /// Trabajos que componen la instancia.
     jobs: Vec<Job>,
 }
 
 // Inicializadores
 impl Jsp {
-    /// Inicializa con argumentos.
+    /// Crea una instancia a partir de sus dimensiones y sus trabajos.
     pub fn new(n_jobs: usize, n_machines: usize, jobs: Vec<Job>) -> Self {
         Self {
             n_jobs,
@@ -29,7 +37,12 @@ impl Jsp {
         }
     }
 
-    /// Inicializa desde un archivo.
+    /// Carga una instancia desde un archivo de texto.
+    ///
+    /// # Errors
+    ///
+    /// Retorna [`JspFileError`] si el archivo no se puede leer o si su
+    /// contenido no tiene el formato esperado.
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, JspFileError> {
         let content = fs::read_to_string(path)?;
         let jsp: Jsp = content.parse()?;
@@ -49,21 +62,26 @@ impl Jsp {
         self.n_machines
     }
 
-    /// Retorna el arreglo de trabajos.
+    /// Retorna los trabajos de la instancia.
     pub fn jobs(&self) -> &[Job] {
         &self.jobs
     }
 }
 
-// operaciones para resolver el problema
+// Operaciones para resolver el problema
 impl Jsp {
-    /// Resuelve el problema con la solución óptima
+    /// Resuelve el problema con la estrategia indicada.
+    ///
+    /// Retorna la mejor programación encontrada o `None` si la estrategia
+    /// no produce una solución.
     pub fn solve<S: Solver>(&self, solver: S) -> Option<Schedule> {
         solver.solve(self)
     }
 
-    /// Resuelve el problema con un criterio de detención.
-    /// Cuando se detiene retorna la mejor solución encontrada para ese entonces.
+    /// Resuelve el problema con una estrategia y un criterio de detención.
+    ///
+    /// Cuando se solicita la detención, retorna la mejor solución encontrada
+    /// hasta ese momento.
     pub fn solve_with_stop<S: Solver>(&self, solver: S, stop: &mut StopHandle) -> Option<Schedule> {
         solver.solve_with_stop(self, stop)
     }
@@ -71,6 +89,7 @@ impl Jsp {
 
 impl Display for Jsp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Calcula el ancho de la cabecera a partir del trabajo más largo.
         let max_ops = self
             .jobs
             .iter()
@@ -104,10 +123,20 @@ impl Display for Jsp {
     }
 }
 
-// esto activa el método .parse()
+// Habilita el método `.parse()` para construir una instancia desde texto.
 impl FromStr for Jsp {
     type Err = JspParseError;
 
+    /// Interpreta el formato de texto de una instancia JSP.
+    ///
+    /// La primera línea contiene `n_jobs n_machines`.
+    /// Cada línea siguiente contiene pares `máquina duración` para un trabajo.
+    ///
+    /// # Errors
+    ///
+    /// Retorna [`JspParseError`] si la entrada está vacía, la cabecera es
+    /// inválida, un número no se puede convertir o una línea tiene una
+    /// cantidad impar de valores.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut non_empty_lines = s.lines().map(str::trim).filter(|line| !line.is_empty());
 
@@ -127,17 +156,20 @@ impl FromStr for Jsp {
         let mut jobs = Vec::new();
 
         for (idx, line) in non_empty_lines.enumerate() {
+            // Cada línea de trabajo debe contener pares máquina-duración.
             let values: Vec<usize> = line
                 .split_whitespace()
                 .map(|token| token.parse::<usize>())
                 .collect::<Result<Vec<_>, _>>()?;
 
-            if values.len() % 2 != 0 {
+            if !values.len().is_multiple_of(2) {
                 return Err(JspParseError::OddOperationValues);
             }
 
             let operations = values
-                .chunks_exact(2)
+                .as_chunks::<2>()
+                .0
+                .iter()
                 .map(|chunk| Operation::new(chunk[0], chunk[1]))
                 .collect();
 

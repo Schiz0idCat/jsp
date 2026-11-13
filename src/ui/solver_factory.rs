@@ -1,5 +1,7 @@
-// Esto no sigue el patrón factory, ni respeta el principio abierto-cerrado.
-// Pero funciona.
+//! Construcción de la estrategia elegida en la línea de comandos.
+
+// Esto no sigue el patrón factory ni respeta el principio abierto-cerrado,
+// pero funciona.
 
 use super::Strategy;
 use crate::solver::RandomSeed;

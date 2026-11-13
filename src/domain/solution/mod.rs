@@ -1,3 +1,5 @@
+//! Estructuras que representan una solución completa y sus elementos.
+
 mod schedule;
 mod schedule_item;
 

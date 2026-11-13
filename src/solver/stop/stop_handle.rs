@@ -1,34 +1,39 @@
+//! Gestor que combina varias condiciones de parada.
+
 use super::StopCondition;
 
-/// Gestor de condiciones de parada para los solucionadores.
+/// Gestiona un conjunto de condiciones de parada para los solucionadores.
 #[derive(Default)]
 pub struct StopHandle {
+    /// Condiciones que se consultan antes de continuar la búsqueda.
     conditions: Vec<Box<dyn StopCondition>>,
 }
 
 impl StopHandle {
-    /// Inicializa un [`StopHandle`] vacío.
+    /// Inicializa un [`StopHandle`] sin condiciones.
     pub fn new() -> Self {
         Self {
             conditions: Vec::new(),
         }
     }
 
-    /// Builder para añadir condiciones de parada.
+    /// Agrega una condición de parada y retorna el manejador actualizado.
     pub fn with_condition(mut self, condition: impl StopCondition + 'static) -> Self {
         self.conditions.push(Box::new(condition));
         self
     }
 
-    /// Inicializa todas las condiciones reseteando su estado interno.
+    /// Reinicia todas las condiciones de parada.
     pub fn start(&mut self) {
         for condition in &mut self.conditions {
             condition.reset();
         }
     }
 
-    /// Evalua si al menos una de las condiciones solicita una detención.
+    /// Indica si al menos una condición solicita detener la ejecución.
     pub fn should_stop(&self) -> bool {
-        self.conditions.iter().any(|c| c.should_stop())
+        self.conditions
+            .iter()
+            .any(|condition| condition.should_stop())
     }
 }

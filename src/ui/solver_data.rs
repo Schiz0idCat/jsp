@@ -1,3 +1,5 @@
+//! Encapsula la instancia, la estrategia y las condiciones de parada.
+
 use super::Strategy;
 use super::solver_factory;
 use crate::domain::Jsp;
@@ -10,16 +12,29 @@ use crate::ui::errors::SolverError;
 use std::path::Path;
 use std::time::Duration;
 
-/// Encapsula una instacia [`Jsp`], sus condiciones de parada y estrategia para solucionarlo.
+/// Encapsula una instancia [`Jsp`], sus condiciones de parada y la estrategia
+/// seleccionada para resolverla.
 pub struct SolverData {
+    /// Instancia cargada desde el archivo.
     jsp: Jsp,
+
+    /// Estrategia de solución seleccionada.
     solver: Box<dyn Solver>,
+
+    /// Condiciones de parada activas.
     stop: StopHandle,
+
+    /// Condición de cancelación compartida con la barra de progreso.
     cancel: CancelCondition,
 }
 
 impl SolverData {
     /// Inicializa y valida los parámetros para resolver el problema.
+    ///
+    /// # Errors
+    ///
+    /// Retorna [`SolverError`] si el archivo de la instancia no se puede leer,
+    /// no se puede parsear o si falla el registro del manejador de `Ctrl+C`.
     pub fn new(
         filepath: &Path,
         timeout: Option<Duration>,
@@ -30,6 +45,7 @@ impl SolverData {
 
         let cancel = CancelCondition::handle_ctrlc()?;
 
+        // La cancelación siempre está activa; el tiempo límite es opcional.
         let mut stop = StopHandle::new().with_condition(cancel.clone());
 
         if let Some(time) = timeout {
@@ -48,17 +64,17 @@ impl SolverData {
 }
 
 impl SolverData {
-    /// Returns a reference to the JSP instance.
+    /// Retorna una referencia a la instancia JSP.
     pub fn jsp(&self) -> &Jsp {
         &self.jsp
     }
 
-    /// Returns a reference to the cancellation handle for progress tracking.
+    /// Retorna una referencia a la condición de cancelación.
     pub fn cancel_handle(&self) -> &CancelCondition {
         &self.cancel
     }
 
-    /// Executes the selected solving strategy.
+    /// Ejecuta la estrategia seleccionada y retorna su solución.
     pub fn solve(&mut self) -> Option<Schedule> {
         self.solver.solve_with_stop(&self.jsp, &mut self.stop)
     }

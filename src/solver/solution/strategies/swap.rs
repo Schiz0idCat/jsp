@@ -1,4 +1,4 @@
-//! Esta estrategia resuelve el taller 6
+//! Estrategia que genera un vecino mediante un intercambio aleatorio.
 
 use rand::prelude::IndexedRandom;
 use rand::seq::SliceRandom;
@@ -8,18 +8,22 @@ use crate::solver::RandomSeed;
 use crate::solver::solution::{Solver, solution_builder::SolutionBuilder};
 use crate::solver::stop::StopHandle;
 
-// Estrategia que genera soluciones vecinas mediante intercambios.
+/// Estrategia que genera soluciones vecinas mediante intercambios.
 pub struct Swap {
+    /// Semilla del generador aleatorio.
     seed: RandomSeed,
 }
 
 impl Swap {
-    // Crea una nueva instancia de Swap.
+    /// Crea una nueva instancia de la estrategia.
     pub fn new(seed: RandomSeed) -> Self {
         Self { seed }
     }
 
-    // Intercambia dos posiciones sin modificar la solución original.
+    /// Intercambia dos posiciones sin modificar la solución original.
+    ///
+    /// Retorna una copia de `solucion` con los elementos `i` y `j`
+    /// intercambiados.
     pub fn swap(&self, solucion: &[usize], i: usize, j: usize) -> Vec<usize> {
         let mut vecino = solucion.to_vec();
         vecino.swap(i, j);
@@ -32,6 +36,7 @@ impl SolutionBuilder for Swap {}
 
 // Implementa la estrategia Swap.
 impl Solver for Swap {
+    /// Genera una solución aleatoria, aplica un intercambio y retorna el vecino.
     fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
         if jsp.jobs().is_empty() {
             return None;

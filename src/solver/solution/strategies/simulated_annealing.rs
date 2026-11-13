@@ -1,11 +1,4 @@
 //! Estrategia Simulated Annealing.
-//!
-//! El código fue realizado integramente por los integrantes del grupo.
-//! Pero la metaheurística fue inventada por Kirkpatrick et al.
-//!
-//! Referencia:
-//! Kirkpatrick, S.; Gelatt, C. D.; Vecchi, M. P. (1983).
-//! «Optimization by Simulated Annealing». Science (en inglés) 220 (4598): 671-680.
 
 use crate::domain::{Jsp, solution::Schedule};
 use crate::solver::RandomSeed;
@@ -15,14 +8,15 @@ use crate::solver::stop::StopHandle;
 use rand::RngExt;
 use rand::seq::SliceRandom;
 
+/// Estrategia de solución basada en Simulated Annealing.
 pub struct SimulatedAnnealing {
-    /// Aleatoriedad. Dispocisión para aceptar soluciones peores.
+    /// Temperatura inicial: controla la probabilidad de aceptar soluciones peores.
     t_initial: f64,
 
-    /// Punto en el que deja de buscar soluciones.
+    /// Temperatura mínima: punto en el que termina la búsqueda.
     t_min: f64,
 
-    /// Tasa de enfriamiento.
+    /// Tasa de enfriamiento aplicada en cada iteración.
     alpha: f64,
 
     /// Semilla del generador aleatorio.
@@ -30,6 +24,7 @@ pub struct SimulatedAnnealing {
 }
 
 impl SimulatedAnnealing {
+    /// Crea la estrategia con sus parámetros de temperatura y su semilla.
     pub fn new(t_initial: f64, t_min: f64, alpha: f64, seed: RandomSeed) -> Self {
         Self {
             t_initial,
@@ -43,6 +38,7 @@ impl SimulatedAnnealing {
 impl SolutionBuilder for SimulatedAnnealing {}
 
 impl Solver for SimulatedAnnealing {
+    /// Ejecuta el ciclo de enfriamiento y retorna la mejor solución encontrada.
     fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
         if jsp.jobs().is_empty() {
             return None;
@@ -55,7 +51,7 @@ impl Solver for SimulatedAnnealing {
             .map(|op| op.machine())
             .max()?;
 
-        // Solución inicial aleatoria
+        // Construye una secuencia inicial aleatoria con una aparición por operación.
         let mut current_seq: Vec<usize> = jsp
             .jobs()
             .iter()
@@ -75,7 +71,7 @@ impl Solver for SimulatedAnnealing {
         stop.start();
 
         while t > self.t_min && !stop.should_stop() {
-            // Tomar una posición aleatorea
+            // Selecciona dos posiciones distintas que contengan trabajos distintos.
             let i = rng.random_range(0..current_seq.len());
             let mut j = rng.random_range(0..current_seq.len());
 
@@ -83,15 +79,15 @@ impl Solver for SimulatedAnnealing {
                 j = rng.random_range(0..current_seq.len());
             }
 
-            // Generar vecino
+            // Genera el vecino intercambiando ambas posiciones.
             current_seq.swap(i, j);
             let neighbor_makespan = self.evaluate_makespan(jsp, &current_seq, max_machine_id);
 
             let delta = neighbor_makespan as f64 - current_makespan as f64;
 
-            // Criterio de aceptación Metropolis
+            // Criterio de aceptación de Metropolis.
             if delta < 0.0 || rng.random::<f64>() < (-delta / t).exp() {
-                // Se acepta el movimiento
+                // Se acepta el movimiento.
                 current_makespan = neighbor_makespan;
 
                 if current_makespan < best_makespan {
@@ -99,11 +95,11 @@ impl Solver for SimulatedAnnealing {
                     best_seq = current_seq.clone();
                 }
             } else {
-                // Se deshace el movimiento
+                // Se deshace el movimiento.
                 current_seq.swap(i, j);
             }
 
-            // Enfriamiento
+            // Enfriamiento geométrico.
             t *= self.alpha;
         }
 

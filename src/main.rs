@@ -1,3 +1,9 @@
+//! Punto de entrada de la aplicación de línea de comandos.
+//!
+//! El flujo principal es: leer los argumentos, construir el objeto
+//! [`SolverData`], ejecutar la estrategia seleccionada y mostrar la
+//! programación resultante.
+
 use std::process::ExitCode;
 
 use clap::Parser;
@@ -5,12 +11,16 @@ use clap::Parser;
 use jsp::solver::RandomSeed;
 use jsp::ui::{Cli, Progress, SolverData};
 
+/// Ejecuta el solucionador y devuelve el código de salida del proceso.
 fn main() -> ExitCode {
-    // parseo de cli
+    // Parsea los argumentos de la línea de comandos.
     let cli = Cli::parse();
 
+    // Usa la semilla indicada por el usuario o genera una nueva.
     let seed = cli.seed().unwrap_or_else(RandomSeed::generate);
-    println!("Seed: {}\n", seed);
+
+    // La semilla siempre se imprime para que la ejecución sea reproducible.
+    println!("Semilla: {}\n", seed);
 
     let mut solver_data = match SolverData::new(cli.filepath(), cli.timeout(), cli.strategy(), seed)
     {
@@ -21,17 +31,18 @@ fn main() -> ExitCode {
         }
     };
 
+    // Muestra la instancia cargada antes de comenzar la búsqueda.
     println!("{}\n", solver_data.jsp());
 
-    // barra de progreso
     let progress = Progress::start();
 
-    // algoritmo de solución
+    // Ejecuta la estrategia de solución seleccionada.
     let solution = solver_data.solve();
 
-    progress.finish(solver_data.cancel_handle()); // limpieza de la barra de progreso
+    // Detiene la animación y deja el estado final en la terminal.
+    progress.finish(solver_data.cancel_handle());
 
-    // muestra la solución encontrada
+    // Muestra la mejor programación encontrada, si existe.
     match solution {
         Some(schedule) => println!("{}", schedule),
         None => println!("No solution found"),

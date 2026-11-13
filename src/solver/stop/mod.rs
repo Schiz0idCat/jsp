@@ -1,3 +1,5 @@
+//! Condiciones de parada para las estrategias de solución.
+
 mod cancel;
 mod stop_condition;
 mod stop_handle;

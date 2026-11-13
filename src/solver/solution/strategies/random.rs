@@ -1,4 +1,4 @@
-//! Esta estrategia resuelve el taller 5
+//! Estrategia de muestreo aleatorio de secuencias.
 
 use rand::seq::SliceRandom;
 
@@ -11,11 +11,15 @@ use crate::solver::stop::StopHandle;
 
 /// Estrategia de generación y evaluación de soluciones aleatorias.
 pub struct Random {
+    /// Cantidad de secuencias aleatorias que se evalúan.
     samples: usize,
+
+    /// Semilla del generador aleatorio.
     seed: RandomSeed,
 }
 
 impl Random {
+    /// Crea la estrategia con una cantidad de muestras y una semilla.
     pub fn new(samples: usize, seed: RandomSeed) -> Self {
         Self { samples, seed }
     }
@@ -24,11 +28,14 @@ impl Random {
 impl SolutionBuilder for Random {}
 
 impl Solver for Random {
+    /// Genera y evalúa secuencias aleatorias, conservando la mejor.
     fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
         if jsp.jobs().is_empty() {
             return None;
         }
 
+        // Obtiene la máquina de mayor identificador para dimensionar los
+        // arreglos internos de evaluación.
         let max_machine_id = jsp
             .jobs()
             .iter()
@@ -36,6 +43,7 @@ impl Solver for Random {
             .map(|op| op.machine())
             .max()?;
 
+        // Secuencia base: cada trabajo aparece una vez por operación.
         let mut base_sequence = Vec::new();
         for (idx, job) in jsp.jobs().iter().enumerate() {
             for _ in 0..job.operations().len() {
@@ -55,6 +63,7 @@ impl Solver for Random {
                 break;
             }
 
+            // Mezcla la secuencia para obtener una solución factible aleatoria.
             current_seq.shuffle(&mut rng);
 
             let makespan = self.evaluate_makespan(jsp, &current_seq, max_machine_id);

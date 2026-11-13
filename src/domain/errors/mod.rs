@@ -1,3 +1,5 @@
+//! Errores asociados a la carga de instancias JSP.
+
 mod jsp_file_error;
 mod jsp_parse_error;
 

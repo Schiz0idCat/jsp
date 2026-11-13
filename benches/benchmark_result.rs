@@ -1,11 +1,18 @@
+//! Acumulación y resumen de los makespan de una instancia.
+
 use std::fmt::Display;
 
+/// Resultado agregado de las ejecuciones de una instancia.
 pub struct BenchmarkResult {
+    /// Nombre de la instancia a la que pertenecen las muestras.
     instance_name: &'static str,
+
+    /// Makespan obtenido en cada ejecución.
     makespans: Vec<f64>,
 }
 
 impl BenchmarkResult {
+    /// Crea un resultado si la lista de muestras no está vacía.
     pub fn new(instance_name: &'static str, makespans: Vec<f64>) -> Option<Self> {
         if makespans.is_empty() {
             None
@@ -27,12 +34,12 @@ impl BenchmarkResult {
         self.makespans.is_empty()
     }
 
-    /// Retorna el mejor valor (mínimo makespan).
+    /// Retorna el menor makespan registrado.
     pub fn min(&self) -> f64 {
         self.makespans.iter().cloned().fold(f64::INFINITY, f64::min)
     }
 
-    /// Retorna el peor valor (máximo makespan).
+    /// Retorna el mayor makespan registrado.
     pub fn max(&self) -> f64 {
         self.makespans
             .iter()
@@ -56,7 +63,7 @@ impl BenchmarkResult {
         let variance: f64 = self
             .makespans
             .iter()
-            .map(|val| (val - mean).powi(2))
+            .map(|value| (value - mean).powi(2))
             .sum::<f64>()
             / (self.len() - 1) as f64;
 

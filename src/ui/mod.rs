@@ -1,3 +1,5 @@
+//! Interfaz de usuario de la aplicación.
+
 mod cli;
 pub mod errors;
 mod progress;

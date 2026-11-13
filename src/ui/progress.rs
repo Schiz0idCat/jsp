@@ -1,9 +1,12 @@
+//! Barra de progreso mostrada durante la resolución.
+
 use crate::solver::stop::CancelCondition;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::time::Duration;
 
-/// Administra la representación visual del progreso durante la resolución del JSP.
+/// Administra la representación visual del progreso durante la resolución.
 pub struct Progress {
+    /// Spinner de `indicatif` que se actualiza mientras se ejecuta la búsqueda.
     spinner: ProgressBar,
 }
 
@@ -21,7 +24,7 @@ impl Progress {
         Self { spinner }
     }
 
-    /// Evalúa la condición de parada y finaliza la animación según el resultado.
+    /// Finaliza la animación según si la ejecución fue cancelada.
     pub fn finish(self, cancel: &CancelCondition) {
         if cancel.is_cancelled() {
             self.finish_interrupted();
@@ -30,7 +33,7 @@ impl Progress {
         }
     }
 
-    /// Finaliza la animación con el formato para una conclusión exitosa.
+    /// Finaliza la animación con el formato de una conclusión exitosa.
     fn finish_success(self) {
         self.spinner.set_style(
             ProgressStyle::default_spinner()
@@ -40,7 +43,7 @@ impl Progress {
         self.spinner.finish();
     }
 
-    /// Finaliza la animación con el formato para un proceso interrumpido.
+    /// Finaliza la animación con el formato de un proceso interrumpido.
     fn finish_interrupted(self) {
         self.spinner.set_style(
             ProgressStyle::default_spinner()

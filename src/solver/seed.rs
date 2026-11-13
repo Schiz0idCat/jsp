@@ -1,3 +1,5 @@
+//! Semilla reproducible para los generadores aleatorios.
+
 use std::fmt::{self, Display, Formatter};
 use std::num::ParseIntError;
 use std::str::FromStr;
@@ -6,6 +8,9 @@ use rand::rngs::StdRng;
 use rand::{RngExt, SeedableRng};
 
 /// Semilla utilizada para inicializar los generadores aleatorios.
+///
+/// Se encapsula en un tipo propio para distinguirla de otros enteros y para
+/// centralizar la creación de generadores deterministas.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct RandomSeed(u64);
 
@@ -43,6 +48,7 @@ impl Display for RandomSeed {
 impl FromStr for RandomSeed {
     type Err = ParseIntError;
 
+    /// Convierte un texto numérico en una semilla.
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         value.parse().map(Self)
     }

@@ -1,3 +1,5 @@
+//! Implementaciones concretas de estrategias de solución.
+
 mod bruteforce;
 mod local_search;
 mod random;
