@@ -22,7 +22,7 @@ use super::errors::{JspFileError, JspParseError};
 use super::solution::Schedule;
 use super::{Job, Operation};
 use crate::solver::solution::Solver;
-use crate::solver::stop::StopHandle;
+use crate::solver::stop::SearchControl;
 
 /// Instancia completa del Job Shop Problem.
 ///
@@ -103,10 +103,14 @@ impl Jsp {
 
     /// Resuelve el problema con una estrategia y un criterio de detención.
     ///
-    /// Cuando se solicita la detención (por tiempo o por `Ctrl+C`), retorna la
-    /// mejor solución encontrada hasta ese momento.
-    pub fn solve_with_stop<S: Solver>(&self, solver: S, stop: &mut StopHandle) -> Option<Schedule> {
-        solver.solve_with_stop(self, stop)
+    /// Cuando se solicita la detención (por tiempo, por `Ctrl+C` o por límite
+    /// de iteraciones), retorna la mejor solución encontrada hasta ese momento.
+    pub fn solve_with_stop<S: Solver>(
+        &self,
+        solver: S,
+        control: &mut SearchControl,
+    ) -> Option<Schedule> {
+        solver.solve_with_stop(self, control)
     }
 }
 

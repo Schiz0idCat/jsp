@@ -4,6 +4,7 @@ use crate::solver::RandomSeed;
 use crate::ui::Strategy;
 
 use clap::Parser;
+use std::num::NonZeroU64;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
@@ -18,6 +19,10 @@ pub struct Cli {
     /// Tiempo límite opcional en segundos.
     #[arg(short, long, value_name = "SECONDS")]
     timeout: Option<u64>,
+
+    /// Cantidad máxima de iteraciones de la búsqueda.
+    #[arg(short = 'n', long = "iterations", value_name = "N", global = true)]
+    iterations: Option<u64>,
 
     /// Semilla aleatoria para reproducir la ejecución.
     #[arg(long, value_name = "U64", global = true)]
@@ -48,6 +53,13 @@ impl Cli {
     /// Retorna la semilla indicada por el usuario, si existe.
     pub fn seed(&self) -> Option<RandomSeed> {
         self.seed
+    }
+
+    /// Retorna la cantidad máxima de iteraciones, si se especificó.
+    ///
+    /// Un valor de `0` se interpreta como ausencia de límite.
+    pub fn iterations(&self) -> Option<NonZeroU64> {
+        self.iterations.and_then(NonZeroU64::new)
     }
 
     /// Retorna la estrategia seleccionada para resolver la instancia.

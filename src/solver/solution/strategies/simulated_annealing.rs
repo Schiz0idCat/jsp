@@ -25,7 +25,7 @@
 use crate::domain::{Jsp, solution::Schedule};
 use crate::solver::RandomSeed;
 use crate::solver::solution::{Solver, solution_builder::SolutionBuilder};
-use crate::solver::stop::StopHandle;
+use crate::solver::stop::SearchControl;
 
 use rand::RngExt;
 use rand::seq::SliceRandom;
@@ -72,7 +72,7 @@ impl SolutionBuilder for SimulatedAnnealing {}
 
 impl Solver for SimulatedAnnealing {
     /// Ejecuta el ciclo de enfriamiento y retorna la mejor solución encontrada.
-    fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
+    fn solve_with_stop(&self, jsp: &Jsp, control: &mut SearchControl) -> Option<Schedule> {
         // Sin trabajos no hay operaciones que programar.
         if jsp.jobs().is_empty() {
             return None;
@@ -110,9 +110,13 @@ impl Solver for SimulatedAnnealing {
         // Temperatura actual. Comienza en `T_0` y se multiplica por `alpha`
         // en cada iteración.
         let mut t = self.t_initial;
-        stop.start();
+        control.start();
 
-        while t > self.t_min && !stop.should_stop() {
+        while t > self.t_min {
+            if control.tick() {
+                break;
+            }
+
             // Selecciona dos posiciones distintas de la secuencia. Deben
             // contener trabajos distintos. Si no, el intercambio no cambia la
             // solución decodificada.

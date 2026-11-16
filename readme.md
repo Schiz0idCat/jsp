@@ -37,6 +37,8 @@ Options:
 Argumentos generales:
 - `-f, --file <ruta>`: ruta a una instancia del problema. Las instancias de ejemplo están en [data](./data).
 - `-t, --timeout <int>`: tiempo límite en segundos. Es opcional.
+- `-n, --iterations <N>`: cantidad máxima de iteraciones. Es opcional.
+  Si se omite o se usa `0`, no hay límite de iteraciones.
 - `--seed <U64>`: semilla para las estrategias que usan aleatoriedad. Es opcional.
   Si se omite, se genera una semilla a partir de la entropía del sistema.
   La semilla utilizada **siempre se imprime** en la primera línea de la salida.

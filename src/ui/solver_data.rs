@@ -1,4 +1,4 @@
-//! Encapsula la instancia, la estrategia y las condiciones de parada.
+//! Encapsula la instancia, la estrategia y el control de parada.
 
 use super::Strategy;
 use super::solver_factory;
@@ -6,13 +6,16 @@ use crate::domain::Jsp;
 use crate::domain::solution::Schedule;
 use crate::solver::RandomSeed;
 use crate::solver::solution::Solver;
-use crate::solver::stop::{CancelCondition, StopHandle, TimeoutCondition};
+use crate::solver::stop::{
+    CancelCondition, SearchBudget, SearchControl, StopHandle, TimeoutCondition,
+};
 use crate::ui::errors::SolverError;
 
+use std::num::NonZeroU64;
 use std::path::Path;
 use std::time::Duration;
 
-/// Encapsula una instancia [`Jsp`], sus condiciones de parada y la estrategia
+/// Encapsula una instancia [`Jsp`], su control de parada y la estrategia
 /// seleccionada para resolverla.
 pub struct SolverData {
     /// Instancia cargada desde el archivo.
@@ -21,8 +24,8 @@ pub struct SolverData {
     /// Estrategia de solución seleccionada.
     solver: Box<dyn Solver>,
 
-    /// Condiciones de parada activas.
-    stop: StopHandle,
+    /// Condiciones externas y presupuesto de iteraciones.
+    control: SearchControl,
 
     /// Condición de cancelación compartida con la barra de progreso.
     cancel: CancelCondition,
@@ -38,6 +41,7 @@ impl SolverData {
     pub fn new(
         filepath: &Path,
         timeout: Option<Duration>,
+        max_iterations: Option<NonZeroU64>,
         strategy: Strategy,
         seed: RandomSeed,
     ) -> Result<Self, SolverError> {
@@ -45,19 +49,21 @@ impl SolverData {
 
         let cancel = CancelCondition::handle_ctrlc()?;
 
-        // La cancelación siempre está activa; el tiempo límite es opcional.
+        // La cancelación siempre está activa. El tiempo y las iteraciones son
+        // límites opcionales.
         let mut stop = StopHandle::new().with_condition(cancel.clone());
 
         if let Some(time) = timeout {
             stop = stop.with_condition(TimeoutCondition::new(time));
         }
 
+        let control = SearchControl::new(stop, SearchBudget::new(max_iterations));
         let solver = solver_factory::build(strategy, seed);
 
         Ok(Self {
             jsp,
             solver,
-            stop,
+            control,
             cancel,
         })
     }
@@ -76,6 +82,6 @@ impl SolverData {
 
     /// Ejecuta la estrategia seleccionada y retorna su solución.
     pub fn solve(&mut self) -> Option<Schedule> {
-        self.solver.solve_with_stop(&self.jsp, &mut self.stop)
+        self.solver.solve_with_stop(&self.jsp, &mut self.control)
     }
 }

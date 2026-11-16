@@ -16,7 +16,7 @@ use super::super::Solver;
 use crate::domain::Jsp;
 use crate::domain::solution::Schedule;
 use crate::solver::RandomSeed;
-use crate::solver::stop::StopHandle;
+use crate::solver::stop::SearchControl;
 
 /// Estrategia de generación y evaluación de soluciones aleatorias.
 pub struct Random {
@@ -38,7 +38,7 @@ impl SolutionBuilder for Random {}
 
 impl Solver for Random {
     /// Genera y evalúa secuencias aleatorias, conservando la mejor.
-    fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
+    fn solve_with_stop(&self, jsp: &Jsp, control: &mut SearchControl) -> Option<Schedule> {
         // Sin trabajos no hay operaciones que programar.
         if jsp.jobs().is_empty() {
             return None;
@@ -70,10 +70,10 @@ impl Solver for Random {
         let mut rng = self.seed.rng();
         let mut current_seq = base_sequence;
 
-        stop.start();
+        control.start();
 
         for _ in 0..self.samples {
-            if stop.should_stop() {
+            if control.tick() {
                 break;
             }
 

@@ -22,8 +22,13 @@ fn main() -> ExitCode {
     // La semilla siempre se imprime para que la ejecución sea reproducible.
     println!("Semilla: {}\n", seed);
 
-    let mut solver_data = match SolverData::new(cli.filepath(), cli.timeout(), cli.strategy(), seed)
-    {
+    let mut solver_data = match SolverData::new(
+        cli.filepath(),
+        cli.timeout(),
+        cli.iterations(),
+        cli.strategy(),
+        seed,
+    ) {
         Ok(data) => data,
         Err(err) => {
             eprintln!("{}", err);

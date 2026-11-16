@@ -15,7 +15,7 @@ use rand::seq::SliceRandom;
 use crate::domain::{Jsp, solution::Schedule};
 use crate::solver::RandomSeed;
 use crate::solver::solution::{Solver, solution_builder::SolutionBuilder};
-use crate::solver::stop::StopHandle;
+use crate::solver::stop::SearchControl;
 
 /// Estrategia que genera soluciones vecinas mediante intercambios.
 pub struct Swap {
@@ -51,7 +51,7 @@ impl SolutionBuilder for Swap {}
 // Implementa la estrategia Swap.
 impl Solver for Swap {
     /// Genera una solución aleatoria, aplica un intercambio y retorna el vecino.
-    fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
+    fn solve_with_stop(&self, jsp: &Jsp, control: &mut SearchControl) -> Option<Schedule> {
         // Sin trabajos no hay operaciones que programar.
         if jsp.jobs().is_empty() {
             return None;
@@ -84,10 +84,10 @@ impl Solver for Swap {
         solution.shuffle(&mut rng);
 
         // Inicia el control de detención.
-        stop.start();
+        control.start();
 
         // Detiene la ejecución si se solicita antes de evaluar.
-        if stop.should_stop() {
+        if control.tick() {
             return None;
         }
 

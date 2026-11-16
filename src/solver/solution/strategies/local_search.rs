@@ -24,7 +24,7 @@ use super::super::Solver;
 use crate::domain::Jsp;
 use crate::domain::solution::Schedule;
 use crate::solver::RandomSeed;
-use crate::solver::stop::StopHandle;
+use crate::solver::stop::SearchControl;
 
 /// Estrategia de [`Jsp`] resuelta mediante búsqueda local por primera mejora.
 ///
@@ -53,9 +53,7 @@ impl LocalSearch {
     ///   intercambios que mejoran el makespan.
     /// - `max_machine_id`: mayor índice interno de máquina, usado para
     ///   dimensionar los arreglos de disponibilidad.
-    /// - `stop`: condiciones de parada por tiempo o `Ctrl+C`.
-    /// - `iter_count`: contador compartido de evaluaciones. Se usa para no
-    ///   consultar la parada en cada vecino.
+    /// - `control`: control de parada y presupuesto de iteraciones.
     ///
     /// Retorna el makespan `C` de la secuencia al alcanzar el mínimo local o
     /// al solicitarse la detención.
@@ -64,13 +62,8 @@ impl LocalSearch {
         jsp: &Jsp,
         sequence: &mut [usize],
         max_machine_id: usize,
-        stop: &StopHandle,
-        iter_count: &mut u64,
+        control: &mut SearchControl,
     ) -> usize {
-        // La parada se consulta cada cierto número de evaluaciones. Este
-        // intervalo es una decisión de implementación, no parte del modelo JSP.
-        const CHECK_INTERVAL: u64 = 10_000;
-
         // Valor de `C` de la solución actual.
         let mut current_makespan = self.evaluate_makespan(jsp, sequence, max_machine_id);
 
@@ -91,10 +84,9 @@ impl LocalSearch {
                         continue;
                     }
 
-                    if (*iter_count).is_multiple_of(CHECK_INTERVAL) && stop.should_stop() {
+                    if control.tick() {
                         break 'search;
                     }
-                    *iter_count += 1;
 
                     // Genera el vecino en el mismo buffer y lo evalúa.
                     sequence.swap(i, j);
@@ -132,7 +124,7 @@ impl SolutionBuilder for LocalSearch {}
 
 impl Solver for LocalSearch {
     /// Explora varias soluciones iniciales y retorna la mejor encontrada.
-    fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
+    fn solve_with_stop(&self, jsp: &Jsp, control: &mut SearchControl) -> Option<Schedule> {
         // Sin trabajos no hay operaciones que programar.
         if jsp.jobs().is_empty() {
             return None;
@@ -163,11 +155,10 @@ impl Solver for LocalSearch {
         let mut rng = self.seed.rng();
         let mut current_seq = base_sequence;
 
-        stop.start();
-        let mut iter_count: u64 = 0;
+        control.start();
 
         for _ in 0..self.samples {
-            if stop.should_stop() {
+            if control.should_stop() {
                 break;
             }
 
@@ -175,13 +166,7 @@ impl Solver for LocalSearch {
             current_seq.shuffle(&mut rng);
 
             // Desciende hasta un mínimo local y obtiene su makespan.
-            let makespan = self.first_improvement(
-                jsp,
-                &mut current_seq,
-                max_machine_id,
-                stop,
-                &mut iter_count,
-            );
+            let makespan = self.first_improvement(jsp, &mut current_seq, max_machine_id, control);
 
             // Conserva la muestra si mejora el mejor resultado global.
             if makespan < best_makespan {

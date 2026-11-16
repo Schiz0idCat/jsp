@@ -20,7 +20,7 @@ use super::super::SolutionBuilder;
 use super::super::Solver;
 use crate::domain::Jsp;
 use crate::domain::solution::Schedule;
-use crate::solver::stop::StopHandle;
+use crate::solver::stop::SearchControl;
 
 /// Estrategia de [`Jsp`] resuelta por fuerza bruta.
 ///
@@ -46,8 +46,8 @@ impl SolutionBuilder for BruteForce {}
 impl Solver for BruteForce {
     /// Recorre todas las permutaciones y retorna la mejor programación.
     ///
-    /// La búsqueda se detiene si el [`StopHandle`] lo solicita.
-    fn solve_with_stop(&self, jsp: &Jsp, stop: &mut StopHandle) -> Option<Schedule> {
+    /// La búsqueda se detiene si el [`SearchControl`] lo solicita.
+    fn solve_with_stop(&self, jsp: &Jsp, control: &mut SearchControl) -> Option<Schedule> {
         // Sin trabajos no hay operaciones que programar.
         if jsp.jobs().is_empty() {
             return None;
@@ -81,20 +81,13 @@ impl Solver for BruteForce {
         let mut best_sequence: Option<Vec<usize>> = None;
         let mut current_seq = base_sequence;
 
-        stop.start();
-
-        // La condición de parada no se consulta en cada permutación porque el
-        // recorrido puede ser muy grande y la consulta añade sobrecarga. Este
-        // intervalo es una decisión de implementación, no parte del modelo JSP.
-        const CHECK_INTERVAL: u64 = 100_000;
-        let mut iter_count: u64 = 0;
+        control.start();
 
         if !current_seq.is_empty() {
             loop {
-                if iter_count.is_multiple_of(CHECK_INTERVAL) && stop.should_stop() {
+                if control.tick() {
                     break;
                 }
-                iter_count += 1;
 
                 // Decodifica la secuencia y obtiene el makespan `C`.
                 let makespan = self.evaluate_makespan(jsp, &current_seq, max_machine_id);
