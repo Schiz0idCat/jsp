@@ -66,13 +66,21 @@ impl SimulatedAnnealing {
             seed,
         }
     }
-}
 
-impl SolutionBuilder for SimulatedAnnealing {}
-
-impl Solver for SimulatedAnnealing {
-    /// Ejecuta el ciclo de enfriamiento y retorna la mejor solución encontrada.
-    fn solve_with_stop(&self, jsp: &Jsp, control: &mut SearchControl) -> Option<Schedule> {
+    /// Ejecuta el ciclo de enfriamiento notificando el mejor makespan por iteración.
+    ///
+    /// El callback recibe `(iteración, mejor_makespan)`, donde la iteración
+    /// comienza en `1`. El makespan notificado es el mejor encontrado hasta
+    /// esa iteración, no el de la solución actual.
+    pub fn solve_with_trace<F>(
+        &self,
+        jsp: &Jsp,
+        control: &mut SearchControl,
+        mut on_iteration: F,
+    ) -> Option<Schedule>
+    where
+        F: FnMut(u64, usize),
+    {
         // Sin trabajos no hay operaciones que programar.
         if jsp.jobs().is_empty() {
             return None;
@@ -160,6 +168,9 @@ impl Solver for SimulatedAnnealing {
                 current_seq.swap(i, j);
             }
 
+            // Notifica el mejor makespan acumulado después de esta iteración.
+            on_iteration(control.iterations(), best_makespan);
+
             // Enfriamiento geométrico: la temperatura baja gradualmente.
             t *= self.alpha;
         }
@@ -167,5 +178,52 @@ impl Solver for SimulatedAnnealing {
         // Decodifica la mejor secuencia encontrada en la tabla de tiempos de
         // inicio y fin de cada operación.
         Some(self.build_schedule(jsp, &best_seq, max_machine_id))
+    }
+}
+
+impl SolutionBuilder for SimulatedAnnealing {}
+
+impl Solver for SimulatedAnnealing {
+    /// Ejecuta el ciclo de enfriamiento y retorna la mejor solución encontrada.
+    fn solve_with_stop(&self, jsp: &Jsp, control: &mut SearchControl) -> Option<Schedule> {
+        self.solve_with_trace(jsp, control, |_, _| {})
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::domain::{Job, Operation};
+
+    #[test]
+    fn trace_records_each_iteration_in_order() {
+        let jsp = Jsp::new(
+            2,
+            1,
+            vec![
+                Job::new(1, vec![Operation::new(0, 5)]),
+                Job::new(2, vec![Operation::new(0, 5)]),
+            ],
+        );
+        let solver = SimulatedAnnealing::new(10.0, 1.0, 0.5, RandomSeed::from_u64(1));
+        let mut control = SearchControl::default();
+        let mut trace = Vec::new();
+
+        let schedule = solver
+            .solve_with_trace(&jsp, &mut control, |iteration, makespan| {
+                trace.push((iteration, makespan));
+            })
+            .expect("debe existir una solución");
+
+        assert!(!trace.is_empty());
+        assert_eq!(
+            trace
+                .iter()
+                .map(|(iteration, _)| *iteration)
+                .collect::<Vec<_>>(),
+            (1..=trace.len() as u64).collect::<Vec<_>>()
+        );
+        assert_eq!(trace.last().unwrap().1, 10);
+        assert!(format!("{schedule}").contains("Best Makespan: 10"));
     }
 }

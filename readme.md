@@ -117,6 +117,7 @@ Además, escribe los resultados en `docs/informe/Tarea2/datos/`:
 - `benchmark.csv`: todas las ejecuciones.
 - `benchmark_facil.csv`, `benchmark_medio.csv`, `benchmark_dificil.csv`: datos por instancia.
 - `benchmark_resumen.csv`: estadísticos por instancia.
+- `iteraciones_facil.csv`, `iteraciones_medio.csv`, `iteraciones_dificil.csv`: mejor makespan acumulado en cada iteración de Simulated Annealing, ordenado por número de iteración ascendente.
 
 ```sh
 cargo build --release

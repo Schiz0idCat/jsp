@@ -3,6 +3,9 @@
 //! Ejecuta la CLI con las semillas `2026..2035` para cada instancia,
 //! recoge los makespan y escribe los resultados en CSV para que pgfplots
 //! y el informe los consuman directamente.
+//!
+//! Además, genera una traza del mejor makespan acumulado en cada iteración
+//! de Simulated Annealing para cada instancia.
 
 mod benchmark_result;
 mod instance;
@@ -10,7 +13,10 @@ mod instance;
 use benchmark_result::BenchmarkResult;
 use instance::Instance;
 
+use jsp::domain::Jsp;
 use jsp::solver::RandomSeed;
+use jsp::solver::solution::strategies::SimulatedAnnealing;
+use jsp::solver::stop::SearchControl;
 use std::fs::{self, File};
 use std::io::{self, BufWriter, Write};
 use std::path::{Path, PathBuf};
@@ -21,6 +27,11 @@ const RUNS_PER_INSTANCE: usize = 10;
 
 /// Primera semilla de la secuencia reproducible.
 const BASE_SEED: u64 = 2026;
+
+/// Parámetros por defecto de Simulated Annealing.
+const SA_T_INITIAL: f64 = 1000.0;
+const SA_T_MIN: f64 = 0.001;
+const SA_ALPHA: f64 = 0.9995;
 
 /// Directorio donde se escriben los CSV del informe.
 const RESULTS_DIR: &str = "docs/informe/Tarea2/datos";
@@ -36,6 +47,16 @@ struct Run {
 
     /// Makespan obtenido.
     makespan: f64,
+}
+
+/// Mejor makespan acumulado después de una iteración de Simulated Annealing.
+#[derive(Clone, Copy)]
+struct IterationSample {
+    /// Número de iteración, comenzando en 1.
+    iteration: u64,
+
+    /// Mejor makespan encontrado hasta esa iteración.
+    makespan: usize,
 }
 
 /// Punto de entrada del benchmark.
@@ -135,6 +156,70 @@ fn main() {
     } else {
         println!("Resultados escritos en: {}\n", results_dir.display());
     }
+
+    println!("Generando trazas de iteraciones...");
+
+    for instance in &instances {
+        match write_iteration_trace(instance, RandomSeed::from_u64(BASE_SEED), &results_dir) {
+            Ok(()) => println!(
+                "  {} -> {}",
+                instance.name(),
+                results_dir
+                    .join(format!("iteraciones_{}.csv", instance.slug()))
+                    .display()
+            ),
+            Err(err) => eprintln!(
+                "  No se pudo generar la traza de {}: {err}",
+                instance.name()
+            ),
+        }
+    }
+}
+
+/// Ejecuta Simulated Annealing y escribe el mejor makespan de cada iteración.
+///
+/// El CSV resultante se ordena únicamente por número de iteración ascendente.
+fn write_iteration_trace(instance: &Instance, seed: RandomSeed, dir: &Path) -> io::Result<()> {
+    let jsp_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(instance.path());
+    let jsp = Jsp::from_file(jsp_path).map_err(|error| io::Error::other(error.to_string()))?;
+
+    let solver = SimulatedAnnealing::new(SA_T_INITIAL, SA_T_MIN, SA_ALPHA, seed);
+    let mut control = SearchControl::default();
+    let mut samples = Vec::new();
+
+    let schedule = solver.solve_with_trace(&jsp, &mut control, |iteration, makespan| {
+        samples.push(IterationSample {
+            iteration,
+            makespan,
+        });
+    });
+
+    if schedule.is_none() {
+        return Err(io::Error::other(format!(
+            "Simulated Annealing no produjo una solución para {}",
+            instance.name()
+        )));
+    }
+
+    // Orden solicitado: solo por número de iteración.
+    samples.sort_by_key(|sample| sample.iteration);
+
+    write_iteration_csv(
+        &dir.join(format!("iteraciones_{}.csv", instance.slug())),
+        &samples,
+    )
+}
+
+/// Escribe las muestras de iteraciones en formato CSV.
+fn write_iteration_csv(path: &Path, samples: &[IterationSample]) -> io::Result<()> {
+    let mut writer = BufWriter::new(File::create(path)?);
+    writeln!(writer, "iteracion,makespan")?;
+
+    for sample in samples {
+        writeln!(writer, "{},{}", sample.iteration, sample.makespan)?;
+    }
+
+    writer.flush()
 }
 
 /// Escribe los datos crudos y el resumen estadístico en formato CSV.
