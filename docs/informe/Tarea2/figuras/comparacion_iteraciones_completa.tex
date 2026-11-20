@@ -1,8 +1,8 @@
-% Comparación del mejor makespan acumulado de Seteo 4 y Simulated Annealing.
+% Comparación del mejor makespan encontrado de AG Memético y Simulated Annealing.
 % Los datos provienen de docs/informe/Tarea2/datos/iteraciones_*_pasos.csv,
 % que contienen únicamente los puntos donde cambia el mejor makespan.
 % Las verticales marcan la primera iteración con makespan 2794:
-% 12.867 para Seteo 4 y 14.479 para Simulated Annealing.
+% 12.867 para AG Memético y 14.479 para Simulated Annealing.
 % Si se regeneran las trazas con otra semilla, actualizar ambos valores.
 
 \definecolor{agcolor}{HTML}{1F4E79}
@@ -13,8 +13,8 @@
 \begin{axis}[
     width=15cm,
     height=8.2cm,
-    xlabel={Iteración (evaluaciones acumuladas)},
-    ylabel={Mejor makespan acumulado},
+    xlabel={Iteración},
+    ylabel={Mejor makespan encontrado},
     xmin=0,
     xmax=27550,
     ymin=2750,
@@ -61,11 +61,11 @@
 \draw[sacolor, line width=0.9pt, dash pattern=on 1.2pt off 1.8pt]
     (axis cs:14479,2794) -- (axis cs:14479,4850);
 
-% Trayectorias del mejor makespan acumulado.
+% Trayectorias del mejor makespan encontrado.
 \addplot[agcolor, line width=1.3pt, const plot]
     table[col sep=comma, x=iteracion, y=makespan]
     {Tarea2/datos/iteraciones_dificil_genetico_seteo4_pasos.csv};
-\addlegendentry{Seteo 4 (AG memético)}
+\addlegendentry{AG Memético}
 
 \addplot[sacolor, line width=1.3pt, dashed, const plot]
     table[col sep=comma, x=iteracion, y=makespan]
@@ -91,7 +91,7 @@
 
 % Etiquetas de los instantes de primer óptimo.
 \node[anchor=east, font=\scriptsize, text=agcolor]
-    at (axis cs:12690,4600) {\textbf{Seteo 4}: 12.867};
+    at (axis cs:12690,4600) {\textbf{AG Memético}: 12.867};
 \node[anchor=west, font=\scriptsize, text=sacolor]
     at (axis cs:14660,4300) {\textbf{SA}: 14.479};
 

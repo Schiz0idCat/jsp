@@ -1,0 +1,136 @@
+% Gráfico conjunto: trayectoria completa + zoom de la convergencia final.
+% Datos: docs/informe/Tarea2/datos/iteraciones_*_pasos.csv
+
+\definecolor{agcolor}{HTML}{1F4E79}
+\definecolor{sacolor}{HTML}{C55A11}
+\definecolor{optcolor}{HTML}{7F7F7F}
+
+\begin{tikzpicture}
+\begin{groupplot}[
+    group style={
+        group size=1 by 2,
+        vertical sep=1.0cm,
+    },
+    width=15cm,
+    height=5.0cm,
+    grid=major,
+    major grid style={draw=black!8, line width=0.35pt},
+    axis background/.style={fill=black!1},
+    axis line style={draw=black!55},
+    tick style={draw=black!55},
+    tick label style={font=\scriptsize},
+    label style={font=\small},
+    scaled x ticks=false,
+    scaled y ticks=false,
+    xticklabel style={
+        font=\scriptsize,
+        /pgf/number format/use comma=false,
+        /pgf/number format/1000 sep={.},
+    },
+    yticklabel style={
+        font=\scriptsize,
+        /pgf/number format/use comma=false,
+        /pgf/number format/1000 sep={.},
+    },
+]
+
+% (a) Trayectoria completa.
+\nextgroupplot[
+    xmin=0, xmax=27550,
+    ymin=2750, ymax=4850,
+    xtick={0,5000,10000,15000,20000,25000},
+    ytick={2800,3000,3400,3800,4200,4600},
+    xlabel={Iteración},
+    ylabel={Mejor makespan encontrado},
+    legend style={
+        at={(0.5,1.03)},
+        anchor=south,
+        legend columns=2,
+        column sep=1.6em,
+        draw=none,
+        fill=none,
+        font=\scriptsize,
+    },
+    legend cell align=left,
+]
+
+\fill[black!3]
+    (axis cs:12867,2794) rectangle (axis cs:14479,4850);
+\draw[agcolor, line width=0.9pt, dash pattern=on 3pt off 2pt]
+    (axis cs:12867,2794) -- (axis cs:12867,4850);
+\draw[sacolor, line width=0.9pt, dash pattern=on 1.2pt off 1.8pt]
+    (axis cs:14479,2794) -- (axis cs:14479,4850);
+
+\addplot[agcolor, line width=1.3pt, const plot]
+    table[col sep=comma, x=iteracion, y=makespan]
+    {Tarea2/datos/iteraciones_dificil_genetico_seteo4_pasos.csv};
+\addlegendentry{AG Memético}
+
+\addplot[sacolor, line width=1.3pt, dashed, const plot]
+    table[col sep=comma, x=iteracion, y=makespan]
+    {Tarea2/datos/iteraciones_dificil_sa_27550_pasos.csv};
+\addlegendentry{Simulated Annealing}
+
+\addplot[only marks, mark=*, mark size=2.4pt, agcolor, forget plot]
+    coordinates {(12867,2794)};
+\addplot[only marks, mark=square*, mark size=2.1pt, sacolor, forget plot]
+    coordinates {(14479,2794)};
+
+\draw[optcolor, densely dotted, line width=0.9pt]
+    (axis cs:0,2794) -- (axis cs:27550,2794);
+\node[font=\scriptsize, text=black!65, fill=white, inner sep=1.5pt,
+      anchor=south west] at (axis cs:220,2798) {óptimo 2794};
+
+\node[anchor=east, font=\scriptsize, text=agcolor]
+    at (axis cs:12690,4600) {\textbf{AG Memético}: 12.867};
+\node[anchor=west, font=\scriptsize, text=sacolor]
+    at (axis cs:14660,4300) {\textbf{SA}: 14.479};
+
+\node[anchor=north west, font=\small\bfseries]
+    at (rel axis cs:0.02,0.98) {(a)};
+
+% (b) Zoom de la convergencia final.
+\nextgroupplot[
+    xmin=10700, xmax=15500,
+    ymin=2790, ymax=2920,
+    xtick={11000,12000,13000,14000,15000},
+    ytick={2800,2820,2840,2860,2880,2900,2920},
+    xlabel={Iteración},
+    ylabel={Mejor makespan encontrado},
+]
+
+\fill[black!3]
+    (axis cs:12867,2794) rectangle (axis cs:14479,2920);
+\draw[agcolor, line width=0.9pt, dash pattern=on 3pt off 2pt]
+    (axis cs:12867,2794) -- (axis cs:12867,2920);
+\draw[sacolor, line width=0.9pt, dash pattern=on 1.2pt off 1.8pt]
+    (axis cs:14479,2794) -- (axis cs:14479,2920);
+
+\addplot[agcolor, line width=1.3pt, const plot]
+    table[col sep=comma, x=iteracion, y=makespan]
+    {Tarea2/datos/iteraciones_dificil_genetico_seteo4_pasos.csv};
+
+\addplot[sacolor, line width=1.3pt, dashed, const plot]
+    table[col sep=comma, x=iteracion, y=makespan]
+    {Tarea2/datos/iteraciones_dificil_sa_27550_pasos.csv};
+
+\addplot[only marks, mark=*, mark size=2.4pt, agcolor, forget plot]
+    coordinates {(12867,2794)};
+\addplot[only marks, mark=square*, mark size=2.1pt, sacolor, forget plot]
+    coordinates {(14479,2794)};
+
+\draw[optcolor, densely dotted, line width=0.9pt]
+    (axis cs:10700,2794) -- (axis cs:15500,2794);
+\node[font=\scriptsize, text=black!65, fill=white, inner sep=1.5pt,
+      anchor=south west] at (axis cs:10760,2796) {óptimo 2794};
+
+\node[anchor=east, font=\scriptsize, text=agcolor]
+    at (axis cs:12800,2905) {\textbf{AG Memético}: 12.867};
+\node[anchor=west, font=\scriptsize, text=sacolor]
+    at (axis cs:14550,2875) {\textbf{SA}: 14.479};
+
+\node[anchor=north east, font=\small\bfseries]
+    at (rel axis cs:0.98,0.98) {(b)};
+
+\end{groupplot}
+\end{tikzpicture}
